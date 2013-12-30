@@ -1,0 +1,54 @@
+html, body {
+   position: relative;
+   height: 100%;
+}
+
+#header {
+   background-color: #bada55;
+   margin: 0;
+}
+
+#header form {
+   margin: 5px auto;
+}
+
+#header input {
+   width: 150px;
+   margin: 0;
+}
+
+.navbar-fixed-top {
+   position: static;
+}
+
+.slides {
+   text-align: center;
+   color: white;
+   font-size: 25px;
+}
+
+.slides p {
+   margin: 0 3em;
+}
+
+.slides:nth-child(odd) {
+   background-color: #23c897;
+}
+
+.slides:nth-child(even) {
+   background-color: #2daee1;
+}
+
+ng-view {
+   display: block;
+   position: absolute;
+}
+
+.view-animate.ng-enter, .view-animate.ng-leave {
+  transition:0.5s linear all;
+}
+
+.view-animate.ng-enter { opacity:0; height: 1000px;}
+.view-animate.ng-enter-active { opacity:1; height: 1000px;}
+.view-animate.ng-leave { opacity:0; height: 1000px; position:absolute;}
+.view-animate.ng-leave-active { opacity:0; height: 1000px;}

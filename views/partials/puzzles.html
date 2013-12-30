@@ -1,0 +1,7 @@
+<h1>ALL PUZZLES</h1>
+
+<li ng-repeat="puzzle in puzzleList">
+   <a ng-href="#/puzzle/{{puzzle.id}}">{{puzzle.description}}</a>
+</li>
+
+<div ui-view></div>
