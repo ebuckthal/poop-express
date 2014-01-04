@@ -23,11 +23,12 @@ exports.puzzle = function(req, res) {
       if(err) {
          res.send(400, req.body);
       } else {
+         res.send(200, puzzle);
 
-         csv().from.string(puzzle.puzzle)
+         /*csv().from.string(puzzle.puzzle)
             .to.array( function(p) {
 
-               /*for(var i = 0; i < p.length; i++) {
+               for(var i = 0; i < p.length; i++) {
 
                   for(var j = 0; j < p[i].length; j++) {
 
@@ -37,13 +38,13 @@ exports.puzzle = function(req, res) {
                      }
 
                   }
-               }*/
+               }
 
 
                console.log(p);
 
                res.send(200, p);
-            });
+            });*/
       }
    });
 

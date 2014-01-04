@@ -278,9 +278,9 @@ return {
             //drawCol(scope.col_cur[prev_col], 100);
             drawRow(scope.currentSoln.orient[prev_index], 200);
             drawCol(scope.currentSoln.orient[prev_index], 200);
-            drawCol(sel);//, x-(cell_width/2-1));
-            drawRow(sel);//y-(cell_width/2-1));
          }
+         drawCol(sel, 0, x-(cell_width/2-1));
+         drawRow(sel, 0, y-(cell_width/2-1));
 
          last_x = x;
          last_y = y;

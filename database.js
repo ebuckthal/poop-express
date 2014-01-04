@@ -149,6 +149,12 @@ exports.getPuzzles = function (callback) {
 
    pool.getConnection(function (err, con) {
 
+      if (err) {
+         console.log('MYSQL CONNECTION ERROR');
+         console.log(err);
+         return callback(err, null);
+      }
+
       con.query('SELECT id, description FROM puzzles',
          function(err, results) {
 
