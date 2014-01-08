@@ -6,6 +6,14 @@ return {
 
       //console.log(scope.puzzle.puzzle);
       //console.log(scope.currentSoln.orient);
+      function shuffle(o){ //v1.0
+         for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+         return o;
+      };
+
+      function dist_from_diag(i,j) {
+         return Math.abs(Math.min(orient.indexOf(i) - orient.indexOf(j)));
+      }
 
       var width = 500,
           height = 500;
@@ -16,6 +24,10 @@ return {
       );
 
       var orient = [0,1,2,3,4,5,6,7,8,9];
+      var r_sel = null;
+      var i_sel = null;
+      var d_left = null;
+      var d_right = null;
 
       var x = d3.scale.ordinal().rangeBands([0, width], 0.1).domain([0,1,2,3,4,5,6,7,8,9]);
 
@@ -24,32 +36,88 @@ return {
 
       var drag = d3.behavior.drag()
          .on("dragstart", function(d, i, j) {
-            console.log('dragstart ' + i + ' ' + j);
+            r_sel = Math.max(i,j);
+            i_sel = orient.indexOf(r_sel);
+            d_left = x(i_sel);
+            d_right = x(i_sel + 1);
 
+            //console.log(i_sel + ' ' + d_left + ' ' + d_right);
          })
          .on("drag", function(d, i, j) {
 
-            var index_max = Math.max(i,j);
-            var d_max = Math.max(d3.event.x, d3.event.y);
+            var d_mouse = Math.max(d3.event.x, d3.event.y);
+
+            if(((d_mouse < d_left && i_sel > 0) || (d_mouse > d_right && i_sel < orient.length))) {
+
+               var i_swap = d_mouse < d_left ? i_sel - 1 : i_sel + 1;
+
+               //console.log('swapping indeces! ' + i_sel + ' ' + i_swap);
+
+               var r_redraw = orient[i_swap];
+               orient[i_swap] = orient[i_sel];
+               orient[i_sel] = r_redraw;
+
+               cells
+                  .select(function(d, ix, jx) {
+                     return (r_redraw == ix || r_redraw == jx ? this : null); 
+                  })
+                  .transition()
+                  .duration(150)
+                  .delay(function(d, i, j) {
+                     return 15 * dist_from_diag(i,j);
+                  })
+                  .attr("transform", function(d, i, j) { 
+
+                     return "translate(" + x(orient.indexOf(i)) + "," + x(orient.indexOf(j)) + ")"; 
+
+                  })
+               ;
+
+               i_sel = orient.indexOf(r_sel);
+               d_left = x(i_sel);
+               d_right = x(i_sel + 1);
+
+            }
+
+            //UPDATE DRAGGING ROWS AND COLUMNS
 
             cells
                .select(function(d, ix, jx) {
-                  return (index_max == ix && index_max != jx ? this : null); 
+                  return (r_sel == ix && r_sel != jx ? this : null); 
                })
                .attr("transform", function(d, i, j) {
-                  return "translate(" + d_max + "," + x(j) + ")";
+                  return "translate(" + d_mouse + "," + x(orient.indexOf(j)) + ")";
                });
 
             cells
                .select(function(d, ix, jx) {
-                  return (index_max == jx && index_max != ix ? this : null); 
+                  return (r_sel == jx && r_sel != ix ? this : null); 
                })
                .attr("transform", function(d, i, j) {
-                  return "translate(" + x(i) + "," + d_max + ")";
+                  return "translate(" + x(orient.indexOf(i)) + "," + d_mouse + ")";
                });
+
+            cells
+               .select(function(d, ix, jx) {
+                  return (r_sel == jx && r_sel == ix ? this : null); 
+               })
+               .attr("transform", function(d, i, j) {
+                  return "translate(" + d_mouse + "," + d_mouse + ")";
+               });
+
          })
          .on("dragend", function(d, i, j) {
 
+            cells
+               .select(function(d, i, j) { return i == r_sel || j == r_sel ? this: null; })
+               .transition()
+               .duration(150)
+               .attr("transform", function(d, i, j) { 
+
+                  return "translate(" + x(orient.indexOf(i)) + "," + x(orient.indexOf(j)) + ")"; 
+
+               })
+            ;
          })
       ;
 
@@ -79,16 +147,17 @@ return {
             })
             .on("mouseenter", function(d, i, j) { 
 
-               var index = i > j ? i : j;
+               var index = Math.max(i,j); 
 
                cells.select("rect")
-                  .filter(function(d, ix, jx) { return index == ix || index == jx; })
+                  .select(function(d, ix, jx) {
+                     return (index == ix || index == jx ? this : null); 
+                  })
                   .transition()
-                  .style("fill", function(d) { return d > 99 ? "#eee" : "#eee"; }) 
+                  .style("fill", function(d) { return d > 99 ? "#23c897" : "#ddd"; }) 
                   .duration(50)
                   .delay(function(d, i, j) { 
-                     var dist = Math.abs(index - (j == index ? i : j));
-                     return 15 * dist; 
+                     return 30 * dist_from_diag(i,j); 
                   })
             })
             .on("mouseleave", function(d, i, j) {
@@ -101,9 +170,9 @@ return {
             })
             .on("click", function(d, i, j) {
 
-               console.log(cells);
+               //console.log(cells);
 
-               var orient = [1,0,2,3,4,5,6,7,8,9];
+               orient = shuffle(orient);
 
                cells.transition()
                   .duration(150)
@@ -120,7 +189,7 @@ return {
                   })
                ;
 
-               console.log(i + " " + j);
+               //console.log(i + " " + j);
 
 
             })
