@@ -2,7 +2,7 @@
 <html lang="en" ng-app='poop-app'>
 <head>
    <!--link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css"></script-->
-   <link rel="stylesheet" type="text/css" href="/css/bootstrap2.min.css"></link>
+   <!--link rel="stylesheet" type="text/css" href="/css/bootstrap2.min.css"></link-->
    <link rel="stylesheet" type="text/css" href="/css/main.css"></link>
 
    <!--script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.js"></script-->
@@ -13,7 +13,7 @@
    <script src="/bower_components/d3/d3.js"></script>
    <!--script src="js/lib/angular-ui-router/release/angular-ui-router.js"></script--> 
    <!--script src="js/lib/fixed-ui-router.js"></script-->
-   <script src="/js/ui-bootstrap-tpls-0.7.0.js"></script> 
+   <!--script src="/js/ui-bootstrap-tpls-0.7.0.js"></script--> 
    <script src="/bower_components/underscore/underscore.js"></script> 
    <script src="/bower_components/angular-http-auth/src/http-auth-interceptor.js"></script>
    <script src="/bower_components/greensock/src/uncompressed/TweenLite.js"></script>
@@ -23,12 +23,13 @@
    <script src="/js/controllers.js"></script> 
    <script src="/js/directives.js"></script> 
    <script src="/js/d3game.js"></script> 
+   <script src="/js/d3tutorial.js"></script> 
    <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenLite.min.js"></script>
 </head>
 
 <body>
 
-   <div class="navbar navbar-fixed-top navbar-inverse" id="header" ng-controller="HeaderCtrl">
+   <!--div class="navbar navbar-fixed-top navbar-inverse" id="header" ng-controller="HeaderCtrl">
       <div class="navbar-inner">
          <a class="brand" href="#">pooper-game</a>
          <ul class="nav nav-pills">
@@ -46,10 +47,8 @@
             <button ng-click="register()" ng-hide="$root.user.email">Register</button>
             <button ng-click="logout()" ng-show="$root.user.email">Log Out</button>
          </form>
-         <!--button class="btn" ng-click="login()" ng-hide="$root.user.username">Login</button>
-         <button class="btn" ng-click="logout()" ng-show="$root.user.username">Logout</button-->
       </div>
-   </div>
+   </div-->
 
    <div ng-view class="view-animate"></div>
 

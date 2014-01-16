@@ -6,6 +6,35 @@ return {
 
       //console.log(scope.puzzle.puzzle);
       //console.log(scope.currentSoln.orient);
+      d3.selection.prototype.moveToFront = function() {
+         return this.each(function(){
+            this.parentNode.appendChild(this);
+         });
+      };
+
+      highlight = function(d, i, j) {
+
+         var index = j; 
+
+         return cells.select("rect")
+            .select(function(d, ix, jx) {
+               return (index == ix || index == jx ? this : null); 
+            })
+            .transition()
+            .duration(0)
+            .style("fill", function(d) { return d > 99 ? "#23c897" : "#ddd"; }) 
+
+      }
+
+      unhighlight = function(d, i , j) {
+
+         return cells.select("rect")
+            .transition()
+            .duration(0)
+            .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
+
+      }
+      
       function shuffle(o){ //v1.0
          for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
          return o;
@@ -15,37 +44,68 @@ return {
          return Math.abs(Math.min(orient.indexOf(i) - orient.indexOf(j)));
       }
 
-      var width = 500,
-          height = 500;
+      var width = 800,
+          height = 800;
 
       var matrix = d3.csv.parseRows(scope.puzzle.puzzle, 
          function(d) { return d.map(function (n) { return +n; }); 
          }
       );
 
-      var orient = [0,1,2,3,4,5,6,7,8,9];
+
+      //var orient = [0,1,2,3,4,5,6,7,8,9];
+      var orient = scope.currentSoln.orient;
       var r_sel = null;
       var i_sel = null;
       var d_left = null;
       var d_right = null;
+      var d_mouse_init_x = null;
+      var d_mouse_init_y = null;
 
-      var x = d3.scale.ordinal().rangeBands([0, width], 0.1).domain([0,1,2,3,4,5,6,7,8,9]);
+      //console.log(scope.puzzle.domain);
 
-      console.log(matrix);
+      var x = d3.scale.ordinal().rangeBands([0, width], 0.1).domain(scope.puzzle.domain);
+
+      //console.log(matrix);
 
 
       var drag = d3.behavior.drag()
          .on("dragstart", function(d, i, j) {
-            r_sel = Math.max(i,j);
+            r_sel = j;
             i_sel = orient.indexOf(r_sel);
             d_left = x(i_sel);
             d_right = x(i_sel + 1);
+
+            //console.log('rsel: ' + r_sel);
+
+            d_mouse_cor = 
+               Math.floor(d3.event.sourceEvent.y - x(i_sel));
+
+            console.log(d_mouse_cor);
+
+            rows.select(function(d, i) { return r_sel == i ? this : null; })
+               .moveToFront();
+
+            cells
+               .call(function(d, i, j) { highlight(d, i, j) });
+
+            cells
+               .on("mouseenter", null)
+               .on("mouseleave", null)
+            ;
 
             //console.log(i_sel + ' ' + d_left + ' ' + d_right);
          })
          .on("drag", function(d, i, j) {
 
-            var d_mouse = Math.max(d3.event.x, d3.event.y);
+            //console.log(d3.event);
+
+            var d_mouse = d3.event.y;
+
+            var draw_x = Math.min(Math.max(x(0), d_mouse - d_mouse_cor), x(orient.length-1));
+            var draw_y = Math.min(Math.max(x(0), d_mouse - d_mouse_cor), x(orient.length-1));
+
+            //console.log(draw_x + ' ' + draw_y + ' ' + x(orient.length-1) + ' ' + (d_mouse-d_mouse_cor));
 
             if(((d_mouse < d_left && i_sel > 0) || (d_mouse > d_right && i_sel < orient.length))) {
 
@@ -59,12 +119,12 @@ return {
 
                cells
                   .select(function(d, ix, jx) {
-                     return (r_redraw == ix || r_redraw == jx ? this : null); 
+                     return (((ix != r_sel && jx != r_sel) && (r_redraw == ix || r_redraw == jx)) ? this : null); 
                   })
                   .transition()
                   .duration(150)
                   .delay(function(d, i, j) {
-                     return 15 * dist_from_diag(i,j);
+                     return 3 * dist_from_diag(i,j);
                   })
                   .attr("transform", function(d, i, j) { 
 
@@ -86,7 +146,7 @@ return {
                   return (r_sel == ix && r_sel != jx ? this : null); 
                })
                .attr("transform", function(d, i, j) {
-                  return "translate(" + d_mouse + "," + x(orient.indexOf(j)) + ")";
+                  return "translate(" + draw_x + "," + x(orient.indexOf(j)) + ")";
                });
 
             cells
@@ -94,7 +154,7 @@ return {
                   return (r_sel == jx && r_sel != ix ? this : null); 
                })
                .attr("transform", function(d, i, j) {
-                  return "translate(" + x(orient.indexOf(i)) + "," + d_mouse + ")";
+                  return "translate(" + x(orient.indexOf(i)) + "," + draw_y + ")";
                });
 
             cells
@@ -102,7 +162,7 @@ return {
                   return (r_sel == jx && r_sel == ix ? this : null); 
                })
                .attr("transform", function(d, i, j) {
-                  return "translate(" + d_mouse + "," + d_mouse + ")";
+                  return "translate(" + draw_x + "," + draw_y + ")";
                });
 
          })
@@ -117,6 +177,11 @@ return {
                   return "translate(" + x(orient.indexOf(i)) + "," + x(orient.indexOf(j)) + ")"; 
 
                })
+            ;
+
+            cells
+               .on("mouseenter", function(d, i, j) { highlight(d, i, j); })
+               .on("mouseleave", function(d, i, j) { unhighlight(d, i, j); })
             ;
          })
       ;
@@ -147,37 +212,22 @@ return {
             })
             .on("mouseenter", function(d, i, j) { 
 
-               var index = Math.max(i,j); 
-
-               cells.select("rect")
-                  .select(function(d, ix, jx) {
-                     return (index == ix || index == jx ? this : null); 
-                  })
-                  .transition()
-                  .style("fill", function(d) { return d > 99 ? "#23c897" : "#ddd"; }) 
-                  .duration(50)
-                  .delay(function(d, i, j) { 
-                     return 30 * dist_from_diag(i,j); 
-                  })
+               highlight(d, i, j);
             })
             .on("mouseleave", function(d, i, j) {
 
-               cells.select("rect")
-                  .transition()
-                  .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
-                  .duration(150);
+               unhighlight(d, i, j);
 
             })
-            .on("click", function(d, i, j) {
+            .on("dblclick", function(d, i, j) {
 
                //console.log(cells);
 
                orient = shuffle(orient);
 
                cells.transition()
-                  .duration(150)
-                  .delay(function(d, i, j) {
-                     return 30 + (30 * i) + (30 * j);
+                  .duration(function(d, i, j) {
+                     return 200 + (30 * orient.indexOf(i)) + (30 * orient.indexOf(j));
                   })
                   .attr("transform", function(d, i, j) { 
 
@@ -199,18 +249,21 @@ return {
       cells.append("rect")
             .attr("rx", 2)
             .attr("ry", 2)
-            .attr("width", 45)
-            .attr("height", 45)
+            .attr("width", width/orient.length - 5)
+            .attr("height", width/orient.length - 5)
             .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
       ;
 
-      cells.append("text")
-            .attr("transform", "translate(15, 16)")
-            .attr("dy", "0.3em")
-            .style("text-anchor", "middle")
-            .style("fill", "black")
-            .text(function(d, i, j) { return i + " | " + j; })
-      ;
+      if($scope.debug) {
+
+         cells.append("text")
+               .attr("transform", "translate(15, 16)")
+               .attr("dy", "0.3em")
+               .style("text-anchor", "middle")
+               .style("fill", "black")
+               .text(function(d, i, j) { return i + " | " + j; })
+         ;
+      }
 
 
 /*

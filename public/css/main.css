@@ -39,16 +39,7 @@ html, body {
    background-color: #2daee1;
 }
 
-ng-view {
+.view-animate {
    display: block;
-   position: absolute;
+   position: relative;
 }
-
-.view-animate.ng-enter, .view-animate.ng-leave {
-  transition:0.5s linear all;
-}
-
-.view-animate.ng-enter { opacity:0; height: 1000px;}
-.view-animate.ng-enter-active { opacity:1; height: 1000px;}
-.view-animate.ng-leave { opacity:0; height: 1000px; position:absolute;}
-.view-animate.ng-leave-active { opacity:0; height: 1000px;}

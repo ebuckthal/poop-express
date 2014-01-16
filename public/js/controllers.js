@@ -1,4 +1,4 @@
-angular.module('controllers', ['ui.bootstrap', 'http-auth-interceptor'])
+angular.module('controllers', ['http-auth-interceptor'])
 
 .controller("HeaderCtrl", function ($scope, $http, $rootScope, $modal, authService, $location) {
 
@@ -189,11 +189,13 @@ angular.module('controllers', ['ui.bootstrap', 'http-auth-interceptor'])
 .controller("PuzzleListCtrl", function ($scope, $http, puzzleList) {
 
    //initialize list of visible puzzles
-   console.log(puzzleList);
+   //console.log(puzzleList);
    $scope.puzzleList = puzzleList;
 })
 
 .controller('PuzzleCtrl', function ($scope, $rootScope, $routeParams, $http, puzzle) {
+
+   $scope.debug = false;
 
    $scope.id = $routeParams.id;
    //console.log(highscore.data);
@@ -202,12 +204,16 @@ angular.module('controllers', ['ui.bootstrap', 'http-auth-interceptor'])
    console.log(puzzle);
 
    $scope.currentSoln = {}; 
+   $scope.puzzle.domain = [];
    $scope.currentSoln.orient = [];
    $scope.currentSoln.score = 0;
 
-   _.each($scope.puzzle, function (p, i) {
+   for(var i = 0; i < $scope.puzzle.puzzle_size; i++) {
       $scope.currentSoln.orient.push(i);
-   });
+      $scope.puzzle.domain.push(i);
+   }
+
+   console.log($scope.puzzle.domain);
 
    $scope.bestSoln = {};
    
