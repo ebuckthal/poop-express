@@ -23,6 +23,7 @@ return {
             .transition()
             .duration(0)
             .style("fill", function(d) { return d > 99 ? "#23c897" : "#ddd"; }) 
+            .style("cursor", 'nwse-resize');
 
       }
 
