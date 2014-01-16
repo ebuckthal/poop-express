@@ -1,4 +1,4 @@
-angular.module('controllers', ['http-auth-interceptor'])
+angular.module('controllers', [])
 
 .controller("HeaderCtrl", function ($scope, $http, $rootScope, $modal, authService, $location) {
 

@@ -255,7 +255,7 @@ return {
             .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
       ;
 
-      if($scope.debug) {
+      if(scope.debug) {
 
          cells.append("text")
                .attr("transform", "translate(15, 16)")
