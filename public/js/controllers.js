@@ -75,67 +75,7 @@ angular.module('controllers', ['http-auth-interceptor'])
 
 })
 
-.controller("StartCtrl", function($scope, $window) {
-
-   $scope.window = $window;
-
-   $scope.scrollToNext = function(index) {
-
-      console.log("scroll to " + index * $window.innerHeight);
-      TweenLite.to(window, 0.5, { 
-         scrollTo: {
-            y: (index + 1) * $window.innerHeight
-         }, 
-         ease:Power1.easeInOut
-      });
-   }
-
-   $scope.slides = [
-      {
-         text: "Certain strains of E. coli are a major cause of foodborne bacterial diseases."
-      },
-      {
-         text: "In order to monitor populations of E. coli more closely, Cal Poly has created a database of E. coli samples. The database contains important information about the strain including the species of origin, date, and region."
-
-      },
-      {
-         text: "The purpose of Poop Snoop is to group the samples of E. coli into strains. Researchers like to know when dangerous strains might be infecting bodies of water or crops."
-
-      },
-      {
-         text: "Every E. coli sample has two important pieces of DNA. We can compare E. coli samples by comparing these two pieces of DNA."
-
-      },
-      {
-         text: "Each piece of DNA is either certain to match, certain to not match, or it is a potential match."
-
-      },
-      {
-         text: "Each E. coli sample then compares both of its DNA pieces to both the DNA pieces of every other E. coli sample."
-
-      },
-      {
-         text: "If both of a samples DNA match both of another samples, it's likely that those samples are part of the same strain."
-
-      },
-      {
-         text: "Poop Snoop is a grid visualizing the pieces of DNA that match within one E. coli sample."
-
-      },
-      {
-         text: "The top quadrant is the matches of one DNA piece. The bottom quandrant is the matches in the second DNA piece."
-      },
-      {
-         text: "The goal is to create the largest square of matching DNA fingerprints. The square must begin at the highlighted diagonal."
-      },
-      {
-         text: "The score corresponds to how large the square is."
-      },
-      {
-         text: "To make a bigger square, you can drag and reorganize the rows and columns, but there is one rule. The rows and columns must be kept in the same order. This means all reordering will be done along the diagonal."
-      }
-   ]
-   
+.controller("StartCtrl", function($scope) {
 })
 
 .controller("LoginModalCtrl", function ($scope, $rootScope, $http, $modalInstance) {
@@ -219,6 +159,9 @@ angular.module('controllers', ['http-auth-interceptor'])
    
    $scope.bestSoln.score = $scope.currentSoln.score;
    $scope.bestSoln.orient = $scope.currentSoln.orient.slice();
+
+   $scope.currentSolution = { orient: [], score: 0, index: 0 };
+   $scope.bestSolution = { orient: [], score: 0, index: 0 };
 
    /*$scope.bestSoln = highscore;
    $scope.currentSoln = {};

@@ -1,7 +1,5 @@
-<h1>ALL PUZZLES</h1>
-
-<li ng-repeat="puzzle in puzzleList">
-   <a ng-href="#/puzzle/{{puzzle.id}}">{{puzzle.description}}</a>
-</li>
-
-<div ui-view></div>
+<ul>
+   <li ng-repeat="puzzle in puzzleList" class="center-wrapper">
+      <a ng-href="#/puzzle/{{puzzle.id}}"><span class="btn">{{puzzle.description}}</span></a>
+   </li>
+</ul>

@@ -4,50 +4,6 @@ return {
    restrict: "E",
    link: function(scope, element, attrs) {
 
-      //console.log(scope.puzzle.puzzle);
-      //console.log(scope.currentSoln.orient);
-      d3.selection.prototype.moveToFront = function() {
-         return this.each(function(){
-            this.parentNode.appendChild(this);
-         });
-      };
-
-      highlight = function(d, i, j) {
-
-         var index = j; 
-
-         return cells.select("rect")
-            .select(function(d, ix, jx) {
-               return (index == ix || index == jx ? this : null); 
-            })
-            .transition()
-            .duration(0)
-            .style("fill", function(d) { return d > 99 ? "#23c897" : "#ddd"; }) 
-            .style("cursor", 'nwse-resize');
-
-      }
-
-      unhighlight = function(d, i , j) {
-
-         return cells.select("rect")
-            .transition()
-            .duration(0)
-            .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
-
-      }
-      
-      function shuffle(o){ //v1.0
-         for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-         return o;
-      };
-
-      function dist_from_diag(i,j) {
-         return Math.abs(Math.min(orient.indexOf(i) - orient.indexOf(j)));
-      }
-
-      var width = 800,
-          height = 800;
-
       var matrix = d3.csv.parseRows(scope.puzzle.puzzle, 
          function(d) { return d.map(function (n) { return +n; }); 
          }
@@ -62,13 +18,141 @@ return {
       var d_right = null;
       var d_mouse_init_x = null;
       var d_mouse_init_y = null;
+      var big_square = null;
 
+      var width = 600,
+          height = 600;
+
+      var game_width = 600;
       //console.log(scope.puzzle.domain);
 
-      var x = d3.scale.ordinal().rangeBands([0, width], 0.1).domain(scope.puzzle.domain);
+      var x = d3.scale.ordinal().rangeBands([0, game_width], 0.1).domain(scope.puzzle.domain);
 
       //console.log(matrix);
 
+      var solutions = [scope.currentSolution, scope.bestSolution];
+
+      //console.log(scope.puzzle.puzzle);
+      //console.log(scope.currentSoln.orient);
+      d3.selection.prototype.moveToFront = function() {
+         return this.each(function(){
+            this.parentNode.appendChild(this);
+         });
+      };
+
+      function updateScore() {
+
+         //var scores = score_g.selectAll('rect')
+         //   .data(solutions);
+
+         var scores = d3.selectAll('div.score')
+            .data(solutions)
+            .transition()
+            .duration(200)
+            .style('width', function(d) { return (50*d.score) + "px"; })
+         ;
+
+         cells
+            .select(function(d, i, j) {
+               return (orient.indexOf(i) >= scope.currentSolution.index && 
+                  orient.indexOf(i) < scope.currentSolution.index+scope.currentSolution.score && 
+                  orient.indexOf(j) >= scope.currentSolution.index && 
+                  orient.indexOf(j) < scope.currentSolution.index+scope.currentSolution.score) ? this : null;
+            })
+            .select('rect')
+            .transition()
+            .duration(50)
+            .delay(function(d, i, j) { return 30 + 10*orient.indexOf(i) + 10*orient.indexOf(j); })
+            .style('fill', '#23c897')
+            .transition()
+            .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
+         ;
+
+      }
+
+      function calcScore() {
+
+         var big = 0;
+
+         scope.currentSolution.score = 0;
+
+         for(var index = 0; index < orient.length; index++) {
+
+            var size;
+
+            for(size = 0; size < orient.length + 1 - index; size++) {
+
+               var success = true;
+
+               cells
+                  .select(function(d, i, j) {
+                     return (orient.indexOf(i) >= index && 
+                        orient.indexOf(i) < index+size && 
+                        orient.indexOf(j) >= index && 
+                        orient.indexOf(j) < index+size) ? this : null;
+                  })
+                  .each(function(d, i, j) {
+                     success = (d > 99 ? success : false);
+                  });
+
+               if(!success) {
+                  break;
+               }
+            }
+
+            if(size-1 > scope.currentSolution.score) {
+
+               scope.currentSolution.score = size-1;
+               scope.currentSolution.orient = orient.slice(0);
+               scope.currentSolution.index = index;
+
+            }
+
+         }
+
+         scope.currentSolution.orient = orient.slice(0);
+         
+         if(scope.currentSolution.score > scope.bestSolution.score) {
+            scope.bestSolution.score = scope.currentSolution.score;
+            scope.bestSolution.index = scope.currentSolution.index;
+            scope.bestSolution.orient = scope.currentSolution.orient.slice(0);
+         }
+
+      }
+
+      function highlight(d, i, j) {
+
+         var index = j; 
+
+         return cells.select("rect")
+            .select(function(d, ix, jx) {
+                  return (index == ix || index == jx ? this : null); 
+               })
+            .transition()
+            .duration(0)
+            .style("fill", function(d) { return d > 99 ? "#23c897" : "#ddd"; }) 
+            .style("cursor", 'nwse-resize');
+
+      }
+
+      function unhighlight(d, i , j) {
+
+         return cells.select("rect")
+            .transition()
+            .duration(0)
+            .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
+
+      }
+
+      
+      function shuffle(o){ //v1.0
+         for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+         return o;
+      };
+
+      function dist_from_diag(i,j) {
+         return Math.abs(Math.min(orient.indexOf(i) - orient.indexOf(j)));
+      }
 
       var drag = d3.behavior.drag()
          .on("dragstart", function(d, i, j) {
@@ -82,7 +166,7 @@ return {
             d_mouse_cor = 
                Math.floor(d3.event.sourceEvent.y - x(i_sel));
 
-            console.log(d_mouse_cor);
+            //console.log(d_mouse_cor);
 
             rows.select(function(d, i) { return r_sel == i ? this : null; })
                .moveToFront();
@@ -184,17 +268,23 @@ return {
                .on("mouseenter", function(d, i, j) { highlight(d, i, j); })
                .on("mouseleave", function(d, i, j) { unhighlight(d, i, j); })
             ;
+
+            calcScore();
+            updateScore();
          })
       ;
 
       var svg = d3.select("game").append("svg")
          .attr("width", width)
-         .attr("height", height);
-
-      svg.append("rect")
-         .attr("width", width)
          .attr("height", height)
-         .style("fill", "#f1f1f1");
+      ;
+
+      var score_g = svg.append("svg:g")
+         .attr('transform', 'translate(600,0)');
+
+
+
+
 
       var rows = svg.selectAll(".rows")
             .data(matrix)
@@ -250,12 +340,14 @@ return {
       cells.append("rect")
             .attr("rx", 2)
             .attr("ry", 2)
-            .attr("width", width/orient.length - 5)
-            .attr("height", width/orient.length - 5)
+            .attr("width", game_width/orient.length - 5)
+            .attr("height", game_width/orient.length - 5)
             .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
       ;
 
-      if($scope.debug) {
+      updateScore();
+
+      if(scope.debug) {
 
          cells.append("text")
                .attr("transform", "translate(15, 16)")
@@ -265,52 +357,6 @@ return {
                .text(function(d, i, j) { return i + " | " + j; })
          ;
       }
-
-
-/*
-      var row = svg.selectAll(".row")
-            .data(matrix)
-         .enter().append("g")
-            .attr("class", "row")
-            .attr("transform", function(d, i) { return "translate(0," + 60 * scope.currentSoln.orient[i] + ")"; })
-            .each(row);
-
-      var column = svg.selectAll(".column")
-            .data(matrix)
-         .enter().append("g")
-            .attr("class", "column")
-            .attr("transform", function(d, i) { return "translate(" + 60 * scope.currentSoln.orient[i] + ")rotate(-90)"; });
-
-      column.append("line")
-         .attr("x1", -width);
-
-      function row(row) {
-
-         var cell = d3.select(this).selectAll(".cell")
-            .data(row.filter(function(d) { return d > 99; }))
-         .enter().append("rect")
-            .attr("class", "cell")
-            .attr("x", function(d, i, j) { return 60 * scope.currentSoln.orient.indexOf(i); })
-            .attr("width", "60px")
-            .attr("height", "60px")
-            .style("fill", function(d) { return "green";  } )
-            .on("mouseover", mouseover)
-            .on("mouseout", mouseout);
-
-      } 
-
-      function mouseover(p) {
-         d3.selectAll(".row").attr("width", function(d, i) { return "70px" });
-      }
-
-      function mouseout(p) {
-         d3.selectAll(".row").attr("width", "60px");
-      }
-      
-
-
-      */
-
    } 
 };
 

@@ -1,45 +1,124 @@
-html, body {
-   position: relative;
+@import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700);
+
+* {
+   margin: 0;
+   padding: 0;
+}
+
+div#content {
+   width: 800px;
    height: 100%;
+   margin: 20px auto;
 }
 
-#header {
-   background-color: #bada55;
-   margin: 0;
+.centered {
+   margin: 0 auto;
 }
 
-#header form {
-   margin: 5px auto;
+text {
+   font-family: 'Source Sans Pro';
+   font-size: 16pt;
+   letter-spacing: 0.05em;
 }
 
-#header input {
-   width: 150px;
-   margin: 0;
-}
-
-.navbar-fixed-top {
-   position: static;
-}
-
-.slides {
+.center-wrapper {
    text-align: center;
+}
+
+div#header {
+   background-color: #eee;
+   height: 55px;
+}
+
+.right {
+   float: right;
+}
+
+div.score {
+   height: 50px;
+   margin: 10px 0px;
+}
+
+div.score span {
+   letter-spacing: 2px;
+   text-align: left;
+   text-transform: uppercase;
+   font-family: 'Source Sans Pro';
+   font-size: 20pt;
+   color: '#fff';
+   width: 100%;
+   padding: 5px 10px;
+   border-radius: 3px;
+   position: absolute;
+}
+
+#current {
+   background-color: #D55332;
+}
+
+#best {
+   background-color: #bbb;
+}
+
+li {
+   list-style-type: none;
+}
+
+.home {
+   display: inline-block;
+   letter-spacing: 2px;
+   text-align: center;
+   font-family: 'Source Sans Pro';
+   font-size: 12pt;
+   border-radius: 3px;
+   text-transform: uppercase;
    color: white;
-   font-size: 25px;
+   border: none;
+   margin: 10px;
+   padding: 5px 10px;
 }
 
-.slides p {
-   margin: 0 3em;
+.home:hover {
+   background-color: #aaa;
+
 }
 
-.slides:nth-child(odd) {
-   background-color: #23c897;
+span.btn {
+   letter-spacing: 2px;
+   text-align: center;
+   font-family: 'Source Sans Pro';
+   font-size: 20pt;
+   border: none;
+   border-radius: 3px;
+   box-shadow: 0 5px 0px #89281F;
+   padding: 5px 10px;
+   margin: 10px 10px 14px 10px;
+   cursor: pointer;
+   text-transform: uppercase;
+   /*background-color: #23c897;*/
+   background-color: #D55332;
+   /*background-color: #2daee1;*/
+   color: white;
+   display: inline-block;
 }
 
-.slides:nth-child(even) {
-   background-color: #2daee1;
+.small {
+   font-size: 12pt !important;
+   background-color: #bbb !important;
+   box-shadow: 0 5px 0px #666 !important;
 }
 
-.view-animate {
-   display: block;
-   position: relative;
+span.btn.disabled {
+   color: #aaa;
+   box-shadow: 0 5px 0px #666;
+   background-color: #bbb;
+   cursor: inherit;
+}
+
+#prev {
+   float: left;
+}
+
+#next {
+   float: right;
 }
