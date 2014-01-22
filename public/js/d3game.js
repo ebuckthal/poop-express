@@ -16,6 +16,7 @@ return {
       var i_sel = null;
       var d_left = null;
       var d_right = null;
+      var svg_top_offset = null;
       var d_mouse_init_x = null;
       var d_mouse_init_y = null;
       var big_square = null;
@@ -159,14 +160,10 @@ return {
             r_sel = j;
             i_sel = orient.indexOf(r_sel);
             d_left = x(i_sel);
-            d_right = x(i_sel + 1);
+            d_right = x(Math.min(orient.length-1,i_sel+1));
 
-            //console.log('rsel: ' + r_sel);
-
-            d_mouse_cor = 
-               Math.floor(d3.event.sourceEvent.y - x(i_sel));
-
-            //console.log(d_mouse_cor);
+            d_mouse_cor = (d_right - d_left) / 2;
+            svg_top_offset = document.querySelector('svg').getBoundingClientRect().top;
 
             rows.select(function(d, i) { return r_sel == i ? this : null; })
                .moveToFront();
@@ -179,20 +176,20 @@ return {
                .on("mouseleave", null)
             ;
 
-            //console.log(i_sel + ' ' + d_left + ' ' + d_right);
+            console.log(i_sel + ' ' + d_left + ' ' + d_right);
          })
          .on("drag", function(d, i, j) {
 
             //console.log(d3.event);
 
-            var d_mouse = d3.event.y;
+            var d_mouse = d3.event.sourceEvent.pageY - svg_top_offset;
 
             var draw_x = Math.min(Math.max(x(0), d_mouse - d_mouse_cor), x(orient.length-1));
             var draw_y = Math.min(Math.max(x(0), d_mouse - d_mouse_cor), x(orient.length-1));
 
             //console.log(draw_x + ' ' + draw_y + ' ' + x(orient.length-1) + ' ' + (d_mouse-d_mouse_cor));
 
-            if(((d_mouse < d_left && i_sel > 0) || (d_mouse > d_right && i_sel < orient.length))) {
+            if(((d_mouse < d_left && i_sel > 0) || (d_mouse > d_right && i_sel < orient.length-1))) {
 
                var i_swap = d_mouse < d_left ? i_sel - 1 : i_sel + 1;
 
@@ -281,10 +278,6 @@ return {
 
       var score_g = svg.append("svg:g")
          .attr('transform', 'translate(600,0)');
-
-
-
-
 
       var rows = svg.selectAll(".rows")
             .data(matrix)
