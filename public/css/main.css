@@ -90,22 +90,23 @@ span.btn {
    font-size: 20pt;
    border: none;
    border-radius: 3px;
-   box-shadow: 0 5px 0px #89281F;
+   box-shadow: 0 5px 0px #12694F;
    padding: 5px 10px;
    margin: 10px 10px 14px 10px;
+   position: relative;
    cursor: pointer;
    text-transform: uppercase;
-   /*background-color: #23c897;*/
-   background-color: #D55332;
+   background-color: #23c897;
+   /*background-color: #D55332;*/
    /*background-color: #2daee1;*/
    color: white;
    display: inline-block;
 }
 
-.small {
-   font-size: 12pt !important;
-   background-color: #bbb !important;
-   box-shadow: 0 5px 0px #666 !important;
+span.btn.small {
+   font-size: 10pt;
+   background-color: #2daee1;
+   box-shadow: 0 5px 0px #175B75;
 }
 
 span.btn.disabled {
@@ -114,6 +115,18 @@ span.btn.disabled {
    background-color: #bbb;
    cursor: inherit;
 }
+
+span.btn:active {
+   top: 3px;
+   box-shadow: 0 2px 0px #12694F;
+
+}
+
+span.btn.disabled:active {
+   top: 1px;
+   box-shadow: 0 4px 0px #666;
+}
+
 
 #prev {
    float: left;

@@ -62,9 +62,9 @@ return {
             })
             .select('rect')
             .transition()
-            .duration(50)
-            .delay(function(d, i, j) { return 30 + 10*orient.indexOf(i) + 10*orient.indexOf(j); })
-            .style('fill', '#23c897')
+            .duration(200)
+            .style('fill', '#D55332')
+            //.delay(function(d, i, j) { return 5*orient.indexOf(i) + 5*orient.indexOf(j); })
             .transition()
             .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
          ;
@@ -131,7 +131,7 @@ return {
                })
             .transition()
             .duration(0)
-            .style("fill", function(d) { return d > 99 ? "#23c897" : "#ddd"; }) 
+            .style("fill", function(d) { return d > 99 ? "#33C5FF" : "#ddd"; }) 
             .style("cursor", 'nwse-resize');
 
       }

@@ -8,23 +8,33 @@ return {
       var height = 600;
       var width = 800;
 
+      var currentInterval = null;
+
       var step = -1;
       var direction;
+
 
       var steps = [
 
          [
-            [],
+            [ { id: 'r1', width: '500px', height: '500px', rx: '5px', ry: '5px', x: '50px', fill: '#ccc' }],
             [ { text: 'POOPGAME is a puzzle game about identifying strains of E. coli.' } ]
          ],
 
          [
-            [ /*{ id: 'r1', width: '10%', height: '10%' }*/ ],
+            [ { id: 'r1', width: '300px', height: '300px', rx: '10px', ry: '10px', x: '10px', fill: '#ccc' }],
             [ { text: 'Certain strains for E. coli are a major cause of foodborne bacterial diseases.', x: 45 } ]
          ],
 
          [
-            [ /*{ id: 'r1', width: '20%', height: '20%' }*/ ],
+            [
+               { id: 'r1', width: '300px', height: '300px', rx: '10px', ry: '10px', x: '10px', fill: '#ccc' },
+               { id: 'r2', width: '50px', height: '30px', x: '400px', y: '100px', fill: "#D55332" },  
+               { id: 'r3', width: '50px', height: '30px', x: '500px', y: '300px', fill: "#D55332" },  
+               { id: 'r4', width: '50px', height: '30px', x: '600px', y: '500px', fill: "#D55332" },  
+
+            
+            ],
             [ 
                { text: 'In order to monitor populations of E. coli, Cal Poly has created a database of E. coli samples.' }, 
                { text: 'The database contains important information about the strains including location, date, and genetic data.' }
@@ -32,7 +42,12 @@ return {
          ],
 
          [
-            [],
+            [
+               { id: 'r1', width: '300px', height: '300px', rx: '10px', ry: '10px', x: '10px', fill: '#ccc' },
+               { id: 'r2', width: '50px', height: '30px', x: '600px', y: '100px', fill: "#2daee1" },  
+               { id: 'r3', width: '50px', height: '30px', x: '300px', y: '300px', fill: "#2daee1" },  
+               { id: 'r4', width: '50px', height: '30px', x: '100px', y: '500px', fill: "#2daee1" },  
+            ],
             [ 
                { text: "The purpose of Poop Snoop is to group the samples of E. coli into strains." },
                { text: "Researchers like to know when dangerous strains might be infecting bodies of water or crops." }
@@ -41,8 +56,14 @@ return {
 
 
          [
-            [],
+            [ 
+               { id: 'r1', width: '100px', height: '100px', rx: '30px', ry: '30px', x: '20px', y: '20px', fill: "#D55332" },
+               { id: 'r2', width: '100px', height: '100px', rx: '30px', ry: '30px', x: '200px', y: '20px', fill: "#D55332" },
+               { id: 'r3', width: '100px', height: '100px', rx: '30px', ry: '30px', x: '20px', y: '200px', fill: "#D55332" },
+               { id: 'r4', width: '100px', height: '100px', rx: '30px', ry: '30px', x: '200px', y: '200px', fill: "#D55332" } 
+            ],
             [
+
                { text: "Every E. coli sample has two important pieces of DNA." },
                { text: "We can compare E. coli samples by comparing these two pieces of DNA." }
             ]
@@ -161,6 +182,7 @@ return {
 
       function update(data) {
 
+         clearInterval(currentInterval);
 
          var r = g.selectAll('rect')
             .data(data[0], function(d) { return d.id; })
@@ -173,23 +195,31 @@ return {
          r
             .transition()
             .duration(200)
-            .attr('width', function(d) { return d.width; })
+            .attr('x', function(d) { return d.x; })
+            .attr('y', function(d) { return d.y; })
+            .attr('width', function(d) {  return d.width; })
             .attr('height', function(d) { return d.height; })
+            .style('fill', function(d) { return d.fill; })
          ;
 
          r.enter()
             .append('rect')
-            .transition()
-            .duration(200)
+            .attr('x', function(d) { return d.x; })
+            .attr('y', function(d) { return d.y; })
             .attr('width', function(d) { return d.width; })
             .attr('height', function(d) { return d.height; })
+            .style('fill', function(d) { return d.fill; })
+            .style('opacity', 0)
+            .transition()
+            .duration(200)
+            .style('opacity', 1)
          ;
 
          r.exit()
             .remove();
 
-         text
-            .attr('y', function(d, i) { return 300 + ((2 - text.size() + i) * 30) + (direction * 30); }) 
+         /*text
+            .attr('y', function(d, i) { return 300 + ((2 - text.size() + i) * 30) + (direction * 10); }) 
             .style('opacity', 0)
             .attr('x', 0) 
             .transition()
@@ -198,22 +228,49 @@ return {
             .attr('y', function(d, i) { return 300 + (2 - text.size() + i) * 30; }) 
             .style('opacity', 1)
          ;
+         */
 
          text.enter()
             .append('text')
             .text(function(d) { return d.text })
-            .attr('y', function(d, i) { return height - ((text.size() - i) * 30) + (direction * 30); }) 
+            .attr('y', function(d, i) { return height - ((text.size() - i) * 30) + (direction * 10); }) 
             .attr('x', 0) 
             .style('opacity', 0)
             .transition()
             .duration(200)
-            .ease("in-out")
+            .ease("out")
             .attr('y', function(d, i) { return height - (text.size() - i) * 30; }) 
             .style('opacity', 1)
          ;
 
          text.exit()
             .remove();
+
+         
+         if(step ==  2) {
+            
+            currentInterval = setTimeout(function() {
+                  console.log('transition');
+
+                  data[0][0].fill = (data[0][0].fill == "#abc" ? "#ccc" : "#abc");
+
+                  update(steps[2]);
+
+            }, 1000);
+
+         } else if(step ==  3) {
+            
+            currentInterval = setTimeout(function() {
+                  console.log('transition');
+
+                  data[0][1].x = (data[0][1].x == "600px" ? "100px" : "600px");
+                  data[0][2].x = (data[0][2].x == "300px" ? "500px" : "300px");
+                  data[0][3].x = (data[0][3].x == "100px" ? "600px" : "100px");
+
+                  update(steps[3]);
+
+            }, 1000);
+         }
 
       }
 
