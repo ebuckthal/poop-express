@@ -135,3 +135,9 @@ span.btn.disabled:active {
 #next {
    float: right;
 }
+
+div.text-box {
+   font-family: 'Source Sans Pro';
+   font-size: 20pt;
+
+}

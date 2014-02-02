@@ -1,20 +1,21 @@
-var POOPSNOOP = (function() { "use strict";
+var POOPSNOOP = (function() {
 
-   var instance = null;
+   function newGame(options) {
 
-   function init() {
+      var matrix = options.data;
+      var gameSize = options.gameSize || 600;
+      var gameTop = options.gameTop || 0;
+      var gameLeft = options.gameLeft || 0;
 
       var svg = null; 
-      var idSVG = null;
       var cells = null;
       var rows = null;
 
-      var gameSize = null;
+      var cellSize = null;
 
       var orient = null;
       var domain = null;
 
-      var onDragEnd = undefined;
 
       //drag stuff
       var selectedRow = null;
@@ -26,59 +27,11 @@ var POOPSNOOP = (function() { "use strict";
       var mouseSwapRight = null;
       var mouseDrawRectOffset = null;
 
-      var shuffle = function(o) {
-         for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-         return o;
-      };
-
-      var distanceFromDiagonal = function(i, j) {
-         return Math.abs(Math.min(orient.indexOf(i) - orient.indexOf(j)));
-      }
-
-      var getColor = function(d, highlight) {
-         if(highlight) 
-            return d > 99.5 ? "#33C5FF" : (d > 99 ? "#E0E089" : "#DDDDDD");
-         else
-            return d > 99.5 ? "#2DAEE1" : (d > 99 ? "#EOE089" : "CCC");
-      }
-
-      var highlightCells = function(d, i, j) {
-
-         var index = j;
-
-         return cells.select('rect')
-            .select(function(d, ix, jx) {
-               return (index == ix || index == jx ? this : null);
-            })
-            .style('fill', function(d) { return getColor(d, true); }) 
-            .style('cursor', 'nwse-resize');
-      }  
-
-      var unhighlightCells = function(d, i, j) {
-
-         return cells.select("rect")
-            .style("fill", function(d) { return getColor(d, false); }); 
+      //placeholder
+      var onDragEnd = options.onDragEnd || function() {
 
       }
-
-      var getCellSize = function() {
-         return gameSize / orient.length - 10;
-      }
-
-      var updateScore = function() {
-
-      }
-
-      var calcScore = function() {
-
-      }
-
-      d3.selection.prototype.moveToFront = function() {
-         return this.each(function(){
-            this.parentNode.appendChild(this);
-         });
-      };
-
+      
       var drag = d3.behavior.drag()
          .on("dragstart", function(d, i, j) {
             selectedRow = j;
@@ -87,8 +40,8 @@ var POOPSNOOP = (function() { "use strict";
             mouseSwapLeft = domain(selectedIndex);
             mouseSwapRight = domain(Math.min(orient.length-1,selectedIndex+1));
 
-            mouseDrawRectOffset = (getCellSize()) / 2;
-            svgOffset = document.querySelector(idSVG).getBoundingClientRect().top;
+            mouseDrawRectOffset = (cellSize) / 2;
+            svgOffset = 0; //document.querySelector(idSVG).getBoundingClientRect().top;
 
             rows.select(function(d, i) { return selectedRow == i ? this : null; })
                .moveToFront();
@@ -173,6 +126,13 @@ var POOPSNOOP = (function() { "use strict";
          })
          .on("dragend", function(d, i, j) {
 
+            function endall(transition, callback) { 
+               var n = 0; 
+               transition 
+                  .each(function() { ++n; }) 
+                  .each("end", function() { if (!--n) callback.apply(this, arguments); }); 
+            } 
+
             cells
                .select(function(d, i, j) { return i == selectedRow || j == selectedRow ? this: null; })
                .transition()
@@ -182,6 +142,7 @@ var POOPSNOOP = (function() { "use strict";
                   return "translate(" + domain(orient.indexOf(i)) + "," + domain(orient.indexOf(j)) + ")"; 
 
                })
+               .call(endall, function() { onDragEnd(cells, orient, domain, cellSize) });
             ;
 
             cells
@@ -191,90 +152,11 @@ var POOPSNOOP = (function() { "use strict";
 
             //calcScore();
             //updateScore();
-            onDragEnd(cells, orient);
          })
       ;
 
-      var pub = {};
 
-      pub.attach = attach;
-      function attach(pidSVG, svgSize, matrix, previousOrient) {
 
-         idSVG = pidSVG; 
-
-         //check input matrix and orient
-         if(previousOrient) {
-            if(matrix.length != previousOrient.length) {
-               console.log('initial orient and matrix do not match');
-               return null;
-            }
-
-            for(var i = 0; i < matrix.length; i++) {
-               if(matrix[i].length != previousOrient.length) {
-                  console.log('initial orient and matrix do not match');
-                  return null;
-               }
-
-            }
-
-            orient = previousOrient;
-         } else {
-
-            orient = [];
-
-            for(var i = 0; i < matrix.length; i++) {
-               orient.push(i);
-            }
-
-         }
-
-         var d = [];
-         for(var i = 0; i < orient.length; i++) {
-            d.push(i);
-         }
-
-         gameSize = svgSize;
-         domain = d3.scale.ordinal().rangeBands([0, gameSize], 0.1).domain(d);
-
-         //draw game
-
-         svg = d3.select(idSVG);
-
-         rows = svg.selectAll(".row")
-            .data(matrix)
-            .enter()
-            .append("svg:g")
-         ;
-
-         cells = rows.selectAll(".cell")
-            .data(function(d, i) { return d; })
-            .enter()
-            .append("svg:g")
-            .attr("transform", function(d, i, j) {
-
-               return "translate(" + domain(i) + "," + domain(j) + ")";
-            })
-            .on("mouseenter", function(d, i, j) {
-               highlightCells(d, i, j);
-            })
-            .on("mouseleave", function(d, i, j) {
-               unhighlightCells(d,i,j);
-            })
-            .call(drag)
-         ;
-
-         cells
-            .append("rect")
-            .attr("width", getCellSize())
-            .attr("height", getCellSize())
-            .attr("rx", 2)
-            .attr("ry", 2)
-            .style('fill', function(d) { return getColor(d, false); })
-         ;
-
-      };
-
-      pub.updateToOrient = updateToOrient;
       function updateToOrient(orientIn) {
 
          if(orient.length != orientIn.length) 
@@ -292,30 +174,149 @@ var POOPSNOOP = (function() { "use strict";
 
       };
 
-      pub.addListener = addListener;
-      function addListener(callback) {
-         onDragEnd = callback;
+      if(options.orientPrevious !== undefined) {
+         if(matrix.length != options.orientPrevious.length) {
+            console.log('initial orient and matrix do not match');
+            return null;
+         }
+
+         for(var i = 0; i < matrix.length; i++) {
+            if(matrix[i].length != options.orientPrevious.length) {
+               console.log('initial orient and matrix do not match');
+               return null;
+            }
+
+         }
+
+         orient = options.orientPrevious;
+      } else {
+
+         orient = [];
+
+         for(var i = 0; i < matrix.length; i++) {
+            orient.push(i);
+         }
+
+      }
+
+      var d = [];
+      for(var i = 0; i < orient.length; i++) {
+         d.push(i);
+      }
+
+      cellSize = gameSize / orient.length - 10;
+      domain = d3.scale.ordinal().rangeBands([0, gameSize], 0.1).domain(d);
+
+      svg = d3.select(options.idSVG).append("svg:g")
+         .attr('transform', function() {
+            return "translate(" + gameLeft + "," + gameTop +")";
+         });
+      //attr('top', gameTop).attr('left', gameLeft);
+
+      rows = svg.selectAll(".row")
+         .data(matrix)
+         .enter()
+         .append("svg:g")
+      ;
+
+
+      cells = rows.selectAll(".cell")
+         .data(function(d, i) { return d; })
+         .enter()
+         .append("svg:g")
+         .attr("transform", function(d, i, j) {
+
+            return "translate(" + domain(i) + "," + domain(j) + ")";
+         })
+         .on("mouseenter", function(d, i, j) {
+            highlightCells(d, i, j);
+         })
+         .on("mouseleave", function(d, i, j) {
+            unhighlightCells(d,i,j);
+         })
+         .call(drag)
+      ;
+
+      cells
+         .append("rect")
+         .attr("width", cellSize)
+         .attr("height", cellSize)
+         .attr("rx", 2)
+         .attr("ry", 2)
+         .style('fill', function(d) { return getColor(d, false); })
+      ;
+
+      d3.selection.prototype.moveToFront = function() {
+         return this.each(function(){
+            this.parentNode.appendChild(this);
+         });
       };
 
-      pub.removeListener = removeListener;
-      function removeListener() {
-         onDragEnd = undefined;
+
+
+      function shuffle(o) {
+         for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+         return o;
       };
 
-      return pub;
+      function distanceFromDiagonal(i, j) {
+         return Math.abs(Math.min(orient.indexOf(i) - orient.indexOf(j)));
+      }
+
+      function getColor(d, highlight) {
+         if(highlight) 
+            return d > 99.5 ? "#33C5FF" : (d > 99 ? "#E0E089" : "#DDDDDD");
+         else
+            return d > 99.5 ? "#2DAEE1" : (d > 99 ? "#EOE089" : "CCC");
+      }
+
+      function highlightCells(d, i, j) {
+
+         var index = j;
+
+         return cells.select('rect')
+            .select(function(d, ix, jx) {
+               return (index == ix || index == jx ? this : null);
+            })
+            .style('fill', function(d) { return getColor(d, true); }) 
+            .style('cursor', 'nwse-resize');
+      }  
+
+      function unhighlightCells(d, i, j) {
+
+         return cells.select("rect")
+            .style("fill", function(d) { return getColor(d, false); }); 
+
+      }
+
+      function updateScore() {
+
+      }
+
+      function updateScore() {
+
+      }
+
+      function destroy(){
+         svg.
+            style('opacity',1)
+            .transition()
+            .duration(200)
+            .style('opacity',0)
+            .remove();
+      };
+
+
+      return {
+         onDragEnd: onDragEnd,
+         destroy: destroy
+
+      };
+
    };
 
    return {
-
-      newGame: 
-         function() { 
-
-            if(!instance) {
-               instance = init();
-            }
-
-            return instance;
-         }
+      newGame: newGame
    };
 
 })();

@@ -9,7 +9,6 @@ return {
          }
       );
 
-
       //var orient = [0,1,2,3,4,5,6,7,8,9];
       var orient = scope.currentSoln.orient;
       var r_sel = null;
@@ -43,9 +42,6 @@ return {
 
       function updateScore() {
 
-         //var scores = score_g.selectAll('rect')
-         //   .data(solutions);
-
          var scores = d3.selectAll('div.score')
             .data(solutions)
             .transition()
@@ -66,7 +62,7 @@ return {
             .style('fill', '#D55332')
             //.delay(function(d, i, j) { return 5*orient.indexOf(i) + 5*orient.indexOf(j); })
             .transition()
-            .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
+            .style("fill", function(d) { return d > 99.5 ? "#2daee1" : (d > 99 ? "#E0E089" : "#ccc"); }) 
          ;
 
       }
@@ -126,12 +122,12 @@ return {
          var index = j; 
 
          return cells.select("rect")
-            .select(function(d, ix, jx) {
+            select(function(d, ix, jx) {
                   return (index == ix || index == jx ? this : null); 
                })
             .transition()
             .duration(0)
-            .style("fill", function(d) { return d > 99 ? "#33C5FF" : "#ddd"; }) 
+            .style("fill", function(d) { return d > 99.5 ? "#33C5FF" : (d > 99 ? "#E0E089" : "#ddd"); }) 
             .style("cursor", 'nwse-resize');
 
       }
@@ -141,7 +137,7 @@ return {
          return cells.select("rect")
             .transition()
             .duration(0)
-            .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
+            .style("fill", function(d) { return d > 99.5 ? "#2daee1" : (d > 99 ? "#E0E089" : "#ccc"); }) 
 
       }
 
@@ -276,9 +272,6 @@ return {
          .attr("height", height)
       ;
 
-      var score_g = svg.append("svg:g")
-         .attr('transform', 'translate(600,0)');
-
       var rows = svg.selectAll(".rows")
             .data(matrix)
             .enter()
@@ -297,6 +290,7 @@ return {
             .on("mouseenter", function(d, i, j) { 
 
                highlight(d, i, j);
+               
             })
             .on("mouseleave", function(d, i, j) {
 
@@ -335,7 +329,7 @@ return {
             .attr("ry", 2)
             .attr("width", game_width/orient.length - 5)
             .attr("height", game_width/orient.length - 5)
-            .style("fill", function(d) { return d > 99 ? "#2daee1" : "#ccc"; }) 
+            .style("fill", function(d) { return d > 99.5 ? "#2daee1" : (d > 99 ? "#E0E089" : "#ccc"); }) 
       ;
 
       updateScore();
