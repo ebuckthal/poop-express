@@ -1,11 +1,13 @@
 var POOPSNOOP = (function() {
 
-   function newGame(options) {
+   function newGame(selection) {
 
-      var matrix = options.data;
-      var gameSize = options.gameSize || 600;
-      var gameTop = options.gameTop || 0;
-      var gameLeft = options.gameLeft || 0;
+      if(selection.data()[0] === undefined) {
+         return;
+      }
+      
+      var matrix = selection.data()[0].data;
+      var gameSize = selection.data()[0].gameSize;
 
       var svg = null; 
       var cells = null;
@@ -15,7 +17,6 @@ var POOPSNOOP = (function() {
 
       var orient = null;
       var domain = null;
-
 
       //drag stuff
       var selectedRow = null;
@@ -28,7 +29,7 @@ var POOPSNOOP = (function() {
       var mouseDrawRectOffset = null;
 
       //placeholder
-      var onDragEnd = options.onDragEnd || function() {
+      var onDragEnd = selection.data()[0].onDragEnd || function() {
 
       }
       
@@ -56,8 +57,10 @@ var POOPSNOOP = (function() {
          })
          .on("drag", function(d, i, j) {
 
+            //d3.mouse(this.parentNode);
+            var mousePosition = d3.mouse(this.parentNode)[1];
             //get mousey stuff
-            var mousePosition = d3.event.sourceEvent.pageY - svgOffset;
+            //var mousePosition = d3.event.sourceEvent.pageY - svgOffset;
             var mouseDrawRect = Math.min(Math.max(domain(0), mousePosition - mouseDrawRectOffset), 
                domain(orient.length-1));
 
@@ -156,7 +159,6 @@ var POOPSNOOP = (function() {
       ;
 
 
-
       function updateToOrient(orientIn) {
 
          if(orient.length != orientIn.length) 
@@ -174,21 +176,21 @@ var POOPSNOOP = (function() {
 
       };
 
-      if(options.orientPrevious !== undefined) {
-         if(matrix.length != options.orientPrevious.length) {
+      if(selection.data()[0].orientPrevious !== undefined) {
+         if(matrix.length != selection.data()[0].orientPrevious.length) {
             console.log('initial orient and matrix do not match');
             return null;
          }
 
          for(var i = 0; i < matrix.length; i++) {
-            if(matrix[i].length != options.orientPrevious.length) {
+            if(matrix[i].length != selection.data()[0].orientPrevious.length) {
                console.log('initial orient and matrix do not match');
                return null;
             }
 
          }
 
-         orient = options.orientPrevious;
+         orient = selection.data()[0].orientPrevious;
       } else {
 
          orient = [];
@@ -207,13 +209,7 @@ var POOPSNOOP = (function() {
       cellSize = gameSize / orient.length - 10;
       domain = d3.scale.ordinal().rangeBands([0, gameSize], 0.1).domain(d);
 
-      svg = d3.select(options.idSVG).append("svg:g")
-         .attr('transform', function() {
-            return "translate(" + gameLeft + "," + gameTop +")";
-         });
-      //attr('top', gameTop).attr('left', gameLeft);
-
-      rows = svg.selectAll(".row")
+      rows = this.selectAll(".row")
          .data(matrix)
          .enter()
          .append("svg:g")
@@ -223,7 +219,13 @@ var POOPSNOOP = (function() {
       cells = rows.selectAll(".cell")
          .data(function(d, i) { return d; })
          .enter()
-         .append("svg:g")
+         .append("rect")
+         .attr("class", "cell")
+         .attr('width', cellSize)
+         .attr('height', cellSize)
+         .attr('rx', 2)
+         .attr('ry', 2)
+         .style('fill', function(d) { return getColor(d, false); })
          .attr("transform", function(d, i, j) {
 
             return "translate(" + domain(i) + "," + domain(j) + ")";
@@ -235,15 +237,6 @@ var POOPSNOOP = (function() {
             unhighlightCells(d,i,j);
          })
          .call(drag)
-      ;
-
-      cells
-         .append("rect")
-         .attr("width", cellSize)
-         .attr("height", cellSize)
-         .attr("rx", 2)
-         .attr("ry", 2)
-         .style('fill', function(d) { return getColor(d, false); })
       ;
 
       d3.selection.prototype.moveToFront = function() {

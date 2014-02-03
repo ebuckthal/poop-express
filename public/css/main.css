@@ -1,4 +1,4 @@
-@import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700);
+@import url("http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700");
 
 * {
    margin: 0;
@@ -101,6 +101,12 @@ span.btn {
    /*background-color: #2daee1;*/
    color: white;
    display: inline-block;
+   -webkit-touch-callout: none;
+   -webkit-user-select: none;
+   -khtml-user-select: none;
+   -moz-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
 }
 
 span.btn.small {
@@ -136,8 +142,11 @@ span.btn.disabled:active {
    float: right;
 }
 
-div.text-box {
+span.text-box {
    font-family: 'Source Sans Pro';
-   font-size: 20pt;
-
+   font-size: 12pt;
+   padding: 10px;
+   background-color: #fff;
+   border: none;
+   display: inline-block;
 }

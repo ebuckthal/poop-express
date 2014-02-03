@@ -20,6 +20,12 @@ var POOPSLIDE = (function() {
       slides.push(newSlide(options));
    }
 
+   d3.selection.prototype.moveToFront = function() {
+      return this.each(function(){
+         this.parentNode.appendChild(this);
+      });
+   };
+
    function newSlide(options) {
 
       var data = options.data;
@@ -27,12 +33,13 @@ var POOPSLIDE = (function() {
       var onRemove = options.onRemove;
 
       function drawRect(rect) {
-         var r = svg.selectAll('rect')
+         var r = svg.selectAll('.box')
             .data(rect, function(d) { return d.id; })
          ;
 
          r.enter()
             .append('rect')
+            .attr('class', 'box')
             .attr('width', function(d) { return d.width; })
             .attr('height', function(d) { return d.height; })
          
@@ -43,6 +50,40 @@ var POOPSLIDE = (function() {
 
       }
 
+      function drawGame(gamedata) {
+
+         var game = svg.selectAll('.game')
+            .data(gamedata, function(d) { return d.id })
+         ;
+
+
+         game.enter()
+            .append('svg:g')
+            .attr('class', 'game')
+         ;
+
+         game
+            .attr('width', function(d) { return d.gameSize; })
+            .attr('height', function(d) { return d.gameSize; })
+            .attr('transform', function(d) {
+               return 'translate(' + d.x + ',' + d.y + ')';
+            })
+            .call(POOPSNOOP.newGame)
+            .style('opacity', 0)
+            .transition()
+            .duration(200)
+            .style('opacity', 1)
+         ;
+
+         game.exit()
+            .transition()
+            .duration(200)
+            .style('opacity', 0)
+            .remove()
+         ;
+
+      }
+
       function drawText(text) {
 
          var t = svg.selectAll('.text-slide')
@@ -50,19 +91,23 @@ var POOPSLIDE = (function() {
             //transform here
          ;
 
-         //update
 
          //enter
          t.enter()
             .append('foreignObject')
             .attr('class', 'text-slide')
-            .attr('width', 150)
-            .attr('height', 100)
+            .attr('width', 600)
+            .attr('height', 600)
+            .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; }) 
          ;
 
+         //update and enter
          t
+            .html(function(d) { return '<span class="text-box">' + d.text + '</span>'})
+            .moveToFront()
+            .transition()
+            .duration(200)
             .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; }) 
-            .html(function(d) { return '<div class="text-box">' + d.text + '</div>'})
          ;
 
          t 
@@ -73,56 +118,21 @@ var POOPSLIDE = (function() {
             .style('opacity', 0)
             .remove();
 
-
-         /*
-           t.append('foreignObject')
-               .attr('x', 100)
-               .attr('y', 300)
-               .attr('width', 150)
-               .attr('height', 100)
-               .append('xhtml:body')
-               .html(function(d) { return '<div class="text">' + d.text + '</div>'})
-         ;
-
-         svg.selectAll('.text-slide')
-            .data(text, function(d) { return d.id; })
-            .exit()
-            .remove()
-         ;
-         */
-
-
-
-         /*
-         t.enter()
-            .attr('class', 'text-slide')
-            .attr('x', function(d) { return "100px"; })
-            .attr('y', function(d) { return "100px"; })
-            .text(function(d) { return d.text; })
-            .style('opacity', 0)
-            .transition()
-            .duration(100)
-            .style('opacity', 1)
-         ;
-
-         t.text(function(d) { return d.text; })
-            .style('opacity', 0)
-            .transition()
-            .duration(100)
-            .style('opacity', 1)
-         ;
-         */
       }
 
       function enter() {
          
          var previousSlide = slides[previousIndex];
 
-         //console.log(previousSlide);
 
          if(previousSlide !== undefined &&
             previousSlide.onRemove !== undefined) {
             previousSlide.onRemove(data);
+         }
+
+
+         if(data.game !== undefined) {
+            drawGame(data.game);
          }
 
          if(data.rect !== undefined) {
@@ -130,12 +140,14 @@ var POOPSLIDE = (function() {
          }
 
          if(data.text !== undefined) {
+
             drawText(data.text);
          }
 
          if(onEnter !== undefined) {
             onEnter(data);
          }
+
       }
 
       return {

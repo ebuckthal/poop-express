@@ -8,7 +8,6 @@ return {
       POOPSLIDE.init({
          idSVG: "#tutorial",
          onSlideChange: function(slides, currentIndex) {
-            console.log(currentIndex);
          }
       });
 
@@ -18,30 +17,28 @@ return {
             ],
             text: [
                { id: 't1', 
-                 text: 'POOPSNOOP is a tool for clustering E. coli into strains.',
-                 x: 500,
+                 text: 'POOPSNOOP is a tool <br>for clustering E. coli into strains.',
+                 x: 350,
                  y: 300
                  }
+            ],
+            game: [
+               { id: '1', 
+                 data: [[100,100,100], [0,100,100], [0,0,100]],
+                 gameSize: 400,
+                 x: 0,
+                 y: 200,
+                 onDragEnd: function(cells, orient, domain, cellSize) {
+                     console.log('ondragend');
+                 }
+               }
             ]
          },
          onEnter: function(data) {
-            game = POOPSNOOP.newGame({
-               idSVG: "#tutorial",
-               data: [[100,100,100],[100, 0, 0], [0,100, 0]],
-               gameSize: 400,
-               gameTop: 50,
-               gameLeft: 50,
-               onDragEnd: function(cells, orient, domain, cellSize) {
-                  console.log(cells);
-                  console.log('here');
-               },
-            });
-
+            console.log('on enter slide 0');
          },
          onRemove: function(data) {
-            console.log("on remove");
-
-            game.destroy();
+            console.log("on remove slide 0");
          }
       });
 
@@ -56,6 +53,17 @@ return {
                  y: 300
                  }
             ],
+            game: [
+              /* { id: '1', 
+                 data: [[100,100,100], [0,100,100], [0,0,100]],
+                 gameSize: 400,
+                 x: 400,
+                 y: 200,
+                 onDragEnd: function(cells, orient, domain, cellSize) {
+                     console.log('ondragend');
+                 }
+               }*/
+            ]
          },
          onEnter: function(data) { 
 
@@ -72,6 +80,8 @@ return {
             ],
             text: [
                { id: 't1', text: 'Here is another text box board indication matching samples in a group of E. coli' }
+            ],
+            game: [
             ]
          }
       });
@@ -80,8 +90,6 @@ return {
 
          POOPSLIDE.nextSlide();
          updateButtons();
-
-         console.log('here');
       }
 
       function prevSlide() {
@@ -92,18 +100,23 @@ return {
 
       function updateButtons() {
 
+         if(POOPSLIDE.canPrev()) {
+            d3.select('#prev').on('click', prevSlide);
+         } else {
+            d3.select('#prev').on('click', null);
+         }
+
+         if(POOPSLIDE.canNext()) {
+            d3.select('#next').on('click', nextSlide);
+         } else {
+            d3.select('#next').on('click', null);
+
+         }
 
          d3.select('#prev').attr('class', (POOPSLIDE.canPrev() ? "btn" : "btn disabled"));
          d3.select('#next').attr('class', (POOPSLIDE.canNext() ? "btn" : "btn disabled"));
 
       }
-
-      //document.querySelector('#prev').addEventListener('click', prevSlide);
-      //document.querySelector('#next').addEventListener('click', nextSlide);
-
-      d3.select('#prev').on('click', prevSlide);
-      d3.select('#next').on('click', nextSlide);
-      
 
       nextSlide();
 
