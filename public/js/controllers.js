@@ -141,7 +141,7 @@ angular.module('controllers', [])
    //console.log(highscore.data);
 
    $scope.puzzle = puzzle;
-   console.log(puzzle);
+   //console.log(puzzle);
 
    $scope.currentSoln = {}; 
    $scope.puzzle.domain = [];
@@ -153,7 +153,7 @@ angular.module('controllers', [])
       $scope.puzzle.domain.push(i);
    }
 
-   console.log($scope.puzzle.domain);
+   //console.log($scope.puzzle.domain);
 
    $scope.bestSoln = {};
    

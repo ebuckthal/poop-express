@@ -28,10 +28,14 @@ var POOPSNOOP = (function() {
       var mouseSwapRight = null;
       var mouseDrawRectOffset = null;
 
-      //placeholder
-      var onDragEnd = selection.data()[0].onDragEnd || function() {
 
-      }
+      //console.log(selection.data()[0]);
+      //placeholder
+      var calcScore = selection.data()[0].calcScore || function(sel, orient) {
+      };
+
+      //placeholder
+      var onDragEnd = selection.data()[0].onDragEnd || function() {};
       
       var drag = d3.behavior.drag()
          .on("dragstart", function(d, i, j) {
@@ -145,7 +149,8 @@ var POOPSNOOP = (function() {
                   return "translate(" + domain(orient.indexOf(i)) + "," + domain(orient.indexOf(j)) + ")"; 
 
                })
-               .call(endall, function() { onDragEnd(cells, orient, domain, cellSize) });
+               .call(endall, function() { onDragEnd(cells, orient, domain, cellSize) })
+               .call(calcScore, orient);
             ;
 
             cells
@@ -308,8 +313,56 @@ var POOPSNOOP = (function() {
 
    };
 
+   function calcScoreBiggestSquare(selection, orient) {
+
+      var big = 0;
+
+      for(var index = 0; index < orient.length; index++) {
+         var size;
+         for(size = 0; size < orient.length + 1 - index; size++) {
+
+            var success = true;
+
+            selection
+               .select(function(d, i, j) {
+                  return (orient.indexOf(i) >= index && 
+                     orient.indexOf(i) < index+size && 
+                     orient.indexOf(j) >= index && 
+                     orient.indexOf(j) < index+size) ? this : null;
+               })
+               .each(function(d, i, j) {
+                  success = (d > 99 ? success : false);
+               });
+
+            if(!success) {
+               break;
+            }
+         
+         }
+
+
+         big = Math.max(size-1, big);
+
+         /*if(size-1 > scope.currentSolution.score) {
+
+            scope.currentSolution.score = size-1;
+            scope.currentSolution.orient = orient.slice(0);
+            scope.currentSolution.index = index;
+
+         }*/
+
+      }
+
+      console.log('CALCSCORE BIGGEST SQUARE: ' + big);
+   };
+
+   function calcScoreAveragePearson(selection, orient) {
+
+   };
+
    return {
-      newGame: newGame
+      newGame: newGame,
+      calcScoreBiggestSquare: calcScoreBiggestSquare
    };
 
 })();
