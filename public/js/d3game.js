@@ -9,14 +9,24 @@ return {
             function(d) { return d.map(function (n) { return +n; }); }
          ); 
 
-
       var gamedata =
          [{ id: '1', 
             data: matrix,
-            gameSize: 400,
+            gameSize: 600,
             x: 0,
             y: 0,
-            calcScore: POOPSNOOP.calcScoreBiggestSquare
+            calcScore: POOPSNOOP.calcScoreBiggestSquare,
+            onDragEnd: 
+               function(cells, orient, domain, cellSize) {
+                  d3.select('.game').selectAll('.good')
+                     .transition()
+                     .duration(100)
+                     .style('fill', 'red')
+                     .transition()
+                     .duration(100)
+                     .delay(1000)
+                     .style('fill', function(d, i, j) { return POOPSNOOP.getColor(d, false); })
+            }
          }];
 
 

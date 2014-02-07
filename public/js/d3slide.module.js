@@ -6,14 +6,11 @@ var POOPSLIDE = (function() {
    var currentIndex = null;
    var previousIndex = null;
 
-   var onSlideChange = undefined; 
-
    function init(options) {
 
       svg = d3.select(options.idSVG);
       currentIndex = -1;
       slides = [];
-      onSlideChange = options.onSlideChange;
    }
 
    function addSlide(options) {
@@ -56,13 +53,32 @@ var POOPSLIDE = (function() {
             .data(gamedata, function(d) { return d.id })
          ;
 
+         game
+            .transition()
+            .duration(100)
+            .attr('width', function(d) { return d.gameSize; })
+            .attr('height', function(d) { return d.gameSize; })
+            .attr('transform', function(d) {
+               return 'translate(' + d.x + ',' + d.y + ')';
+            })
+            .transition()
+            .duration(100)
+            .attr('transform', function(d) {
+               return 'translate(' + d.x + ',' + (d.y+25) + ')scale(1,0.95)';
+            })
+            .transition()
+            .duration(100)
+            .attr('transform', function(d) {
+               return 'translate(' + d.x + ',' + d.y + ')scale(1,1)';
+            })
+            .each("end", function(){ if(onEnter !== undefined) { onEnter(data); } })
+            //game.call(onSlideChange);
+         ;
+
 
          game.enter()
             .append('svg:g')
             .attr('class', 'game')
-         ;
-
-         game
             .attr('width', function(d) { return d.gameSize; })
             .attr('height', function(d) { return d.gameSize; })
             .attr('transform', function(d) {
@@ -74,6 +90,7 @@ var POOPSLIDE = (function() {
             .duration(200)
             .style('opacity', 1)
          ;
+
 
          game.exit()
             .transition()
@@ -91,24 +108,28 @@ var POOPSLIDE = (function() {
             //transform here
          ;
 
+         t
+            .html(function(d) { return '<span class="text-box" id="' + d.id + '">' + d.text + '</span>'})
+            .transition()
+            .duration(200)
+            .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; }) 
+         ;
 
          //enter
          t.enter()
             .append('foreignObject')
             .attr('class', 'text-slide')
+            .html(function(d) { return '<span class="text-box" id="' + d.id + '">' + d.text + '</span>'})
+            .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; }) 
             .attr('width', 600)
             .attr('height', 600)
-            .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; }) 
+            .style('opacity', 0)
+            .transition()
+            .duration(200)
+            .style('opacity', 1)
          ;
 
          //update and enter
-         t
-            .html(function(d) { return '<span class="text-box">' + d.text + '</span>'})
-            .moveToFront()
-            .transition()
-            .duration(200)
-            .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; }) 
-         ;
 
          t 
             .exit()
@@ -145,10 +166,12 @@ var POOPSLIDE = (function() {
          }
 
          if(onEnter !== undefined) {
-            onEnter(data);
+            //onEnter(data);
          }
 
-      }
+         
+
+      };
 
       return {
          enter: enter,
@@ -161,14 +184,14 @@ var POOPSLIDE = (function() {
 
       previousIndex = currentIndex;
       currentIndex = Math.min(slides.length-1, currentIndex+1);
-      return goToSlide(currentIndex);
+      goToSlide(currentIndex);
    }
 
    function prevSlide() {
          
       previousIndex = currentIndex;
       currentIndex = Math.max(0, currentIndex-1);
-      return goToSlide(currentIndex);
+      goToSlide(currentIndex);
    }
 
    function goToSlide(index) {
@@ -180,8 +203,8 @@ var POOPSLIDE = (function() {
 
       slides[index].enter();
 
-      onSlideChange(slides, currentIndex);
    }
+
 
    function canPrev() {
       return currentIndex <= 0 ? false : true;
