@@ -116,10 +116,13 @@ var POOPSNOOP = (function() {
 
          }
 
-
       }
 
    };
+
+   function init(selection, options) {
+
+   }
 
    function newGame(selection) {
 
@@ -384,13 +387,6 @@ var POOPSNOOP = (function() {
       ;
 
    };
-
-   function setOnDragEnd(sel, func) {
-
-      return this;
-
-   }
-
 
    return {
       newGame: newGame,
