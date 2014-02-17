@@ -1,4 +1,4 @@
-angular.module('poop-app', ['ngRoute', 'ngAnimate', 'controllers', 'directives',  'http-auth-interceptor', 'd3tutorial', 'd3game'])
+angular.module('poop-app', ['ngRoute', 'ngAnimate', 'controllers', 'directives', 'POOPSLIDE', 'POOPSNOOP', 'POOPEFFECTS', 'http-auth-interceptor'])
 
 .config(function ($routeProvider, $locationProvider) {
 
