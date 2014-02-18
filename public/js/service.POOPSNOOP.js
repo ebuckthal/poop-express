@@ -1,6 +1,6 @@
-angular.module('POOPSNOOP', ['POOPSLIDE'])
+angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
 
-.service('POOPSNOOP', function(POOPSLIDE) {
+.service('POOPSNOOP', function(POOPSLIDE, POOPEFFECTS) {
 
    Array.prototype.compare = function (array) {
       // if the other array is a falsy value, return
@@ -30,8 +30,6 @@ angular.module('POOPSNOOP', ['POOPSLIDE'])
 
    function init(selection, matrix, options) {
 
-      console.log('here');
-
       var d = [];
 
       for(var i = 0; i < options.orient.length; i++) {
@@ -40,6 +38,12 @@ angular.module('POOPSNOOP', ['POOPSLIDE'])
 
       options.domain = d3.scale.ordinal().rangeBands([0, options.gameSize], 0.1, 0.15).domain(d);
       options.cellSize = 0.9 * (options.domain(1) - options.domain(0));
+
+      options.drawDomain = [];
+
+      for(var i = 0; i < d.length; i++) {
+         options.drawDomain.push(options.domain(i));
+      };
 
       this
          .datum(options) //{ gameSize: 400, orient: [0,1,2] })
@@ -78,56 +82,32 @@ angular.module('POOPSNOOP', ['POOPSLIDE'])
       ;
 
       this
-         .selectAll('.row')
-         .selectAll('.cell')
-         .call(drawAll)
-         .call(colorAll, false)
-      ;
+         .call(colorAllData)
+         .call(drawDomainAll)
 
    };
 
-   function drawAll() {
 
+   function drawDomainAll() {
+      
       var datum = d3.select('#game').datum();
 
       this
-         .attr("transform", function(d, i, j) { 
-            return "translate(" + (datum.domain(datum.orient.indexOf(i))) + 
-            "," + (datum.domain(datum.orient.indexOf(j))) + ")"; 
-      })
-   };
-
-   function drawDrag(sel, mousePosition) {
-
-      var datum = d3.select("#game").datum();
-      var drawPosition = Math.min(Math.max(0, mousePosition[1]-(datum.cellSize/2)), datum.gameSize-datum.cellSize);
-
-      this
-         .attr("transform", function(d, i, j) { 
-            if(j == datum.selected && i == datum.selected) {
-
-               return "translate(" + drawPosition + "," + drawPosition + ")"; 
-            } else if(j == datum.selected) {
-               
-               return "translate(" + (datum.domain(datum.orient.indexOf(i))) + "," + drawPosition + ")"; 
-            } else if (i == datum.selected) {
-
-               return "translate(" + drawPosition + "," + (datum.domain(datum.orient.indexOf(j))) + ")"; 
-            }
-      })
-   };
-
-   function colorAllTutorial(sel) {
-
-      var colors = ['#00FF00', '#FF00FF', '#FF0000'];
-
-      this
          .selectAll('.row')
          .selectAll('.cell')
-         .style('fill', function(d, i, j) {
-            return colors[i];
+         .attr('transform', function(d, i, j) {
+            return "translate(" + datum.drawDomain[i] + 
+            "," + datum.drawDomain[j] + ")"; 
          })
-   };
+
+   }
+
+   function removeGood(sel) {
+      
+      this
+         .selectAll('.good')
+         .classed('good', false);
+   }
 
    function colorAllData(sel) {
 
@@ -151,25 +131,13 @@ angular.module('POOPSNOOP', ['POOPSLIDE'])
          })
    };
 
-   function setSwapBounds(sel, index) {
-
-      var datum = this.datum();
-
-      if(index !== undefined) {
-         datum.selected = index;
-      }
-
-      datum.selectedIndex = datum.orient.indexOf(datum.selected);
-
-      datum.swap = [datum.domain(datum.selectedIndex)-1, datum.domain(datum.selectedIndex+1)+1];
-   }
-
    function dragStart(d, i, j) {
 
-      //determine swap positions
-      d3.select('#game')
-         .call(setSwapBounds, j) //grabs row
+      d3.select("#game").datum().selected = j;
 
+      setSwapBounds();
+
+      d3.select('#game')
          .selectAll('.row')
          .selectAll('.cell')
          .on("mouseenter", null)
@@ -185,50 +153,76 @@ angular.module('POOPSNOOP', ['POOPSLIDE'])
       */
    };
 
-   function swapOrient(sel, ind1, ind2) {
+   //set datum.swap to know when we want to swap
+   //update datum.orient to reflect current orientation
+   function doSwap(swapRight) {
+      var datum = d3.select('#game').datum();
+      
+      var selectedIndex = datum.orient.indexOf(datum.selected); 
 
-      var datum = this.datum();
+      var otherIndex = swapRight ? selectedIndex+1 : selectedIndex-1;
 
-      var tmp = datum.orient[ind1];
-      datum.orient[ind1] = datum.orient[ind2];
-      datum.orient[ind2] = tmp;
+      var tmp = datum.orient[selectedIndex];
+      datum.orient[selectedIndex] = datum.orient[otherIndex];
+      datum.orient[otherIndex] = tmp;
+
+      //this is some magic to override the normal transition function to change our drawDomain element
+      //instead. It calls POOPEFFECTS.drawRowColHighlights and drawDomainAll for each iteration of interpolation
+      d3.select("#game")
+         .selectAll('.row')
+         .select(function(d, i) { return (i == datum.selected ? null : this); })
+         .transition()
+         .tween('draw', function(d, ix) {
+            var i = d3.interpolate(datum.drawDomain[ix], datum.domain(datum.orient.indexOf(ix)));
+
+            return function (t) {
+
+               datum.drawDomain[ix] = i(t); //datum.domain(selectedIndex);
+
+               d3.select("#game").call(drawDomainAll);
+               d3.select("#effects").call(POOPEFFECTS.drawRowColHighlights);
+
+            };
+         })
+
+      setSwapBounds();
    }
 
+   function setSwapBounds() {
+      var datum = d3.select('#game').datum();
+      var selectedIndex = datum.orient.indexOf(datum.selected); 
+
+      datum.swap = [datum.domain(selectedIndex), datum.domain(selectedIndex+1)];
+   }
+   
    function drag(d, i, j) {
 
       var datum = d3.select('#game').datum();
+
       var mousePosition = d3.mouse(this.parentNode);
-      
-      d3.select('#game')
-         .selectAll('.row')
-         .selectAll('.cell')
-         .select(function(d, i, j) { return i == datum.selected || j == datum.selected ? this : null  })
-         .call(drawDrag, mousePosition)
+      var drawPosition = Math.min(Math.max(0, mousePosition[1]-(datum.cellSize/2)), datum.gameSize-datum.cellSize);
 
-      if(mousePosition[1] < datum.swap[0] && datum.selectedIndex > 0) { //swap left
+      datum.drawDomain[datum.selected] = drawPosition;
 
-         d3.select('#game')
-            .call(swapOrient, datum.selectedIndex, datum.selectedIndex-1)
-            .call(setSwapBounds)
-            .selectAll('.row')
-            .selectAll('.cell')
-            .select(function(d, i, j) { return i != datum.selected && j != datum.selected ? this : null })
-            .transition()
-            .duration(100)
-            .call(drawAll);
+      if(mousePosition[1] < datum.swap[0] &&
+            datum.orient.indexOf(datum.selected) > 0) { //swap left
 
-      } else if(mousePosition[1] > datum.swap[1]) { //swap right
+         doSwap(false);
 
-         d3.select('#game')
-            .call(swapOrient, datum.selectedIndex, datum.selectedIndex+1)
-            .call(setSwapBounds)
-            .selectAll('.row')
-            .selectAll('.cell')
-            .select(function(d, i, j) { return i != datum.selected && j != datum.selected ? this : null })
-            .transition()
-            .duration(100)
-            .call(drawAll);
+      } else if(mousePosition[1] > datum.swap[1] 
+            && datum.orient.indexOf(datum.selected) < datum.orient.length-1) { //swap right
+
+         doSwap(true);
       }
+
+      d3.select('#game')
+         .call(drawDomainAll)
+      ;
+
+      d3.select("#effects")
+         .call(POOPEFFECTS.drawRowColHighlights)
+      ;
+
    };
 
    function endall(transition, callback) { 
@@ -240,15 +234,24 @@ angular.module('POOPSNOOP', ['POOPSLIDE'])
 
    function dragEnd() {
 
+      var datum = d3.select("#game").datum();
+      var selectedIndex = datum.orient.indexOf(datum.selected); 
+      
+      datum.drawDomain[datum.selected] = datum.domain(selectedIndex);
+
+      d3.select("#effects")
+         .call(POOPEFFECTS.drawRowColHighlights);
+
       d3.select("#game")
          .selectAll('.row')
          .selectAll('.cell')
          .on("mouseenter", highlightCells)
          .on("mouseleave", unhighlightCells)
-         .transition()
-         .call(drawAll)
-         .call(endall, onDragEnd || function() { console.log('ondragend not defined'); });
       ;
+
+      d3.select("#game")
+         .call(drawDomainAll)
+         .call(onDragEnd || function() { console.log('ondragend not defined'); });
 
    };
 
@@ -289,7 +292,7 @@ angular.module('POOPSNOOP', ['POOPSLIDE'])
 
          }
 
-         console.log('found: square of size ' + (squareSize-1) + ' at ' + startIndex);
+         //console.log('found: square of size ' + (squareSize-1) + ' at ' + startIndex);
       }
 
    }
@@ -322,15 +325,17 @@ angular.module('POOPSNOOP', ['POOPSLIDE'])
    };
 
    function setOnDragEnd(fn) {
-
       onDragEnd = fn;
    };
+
 
    return {
       init: init,
       setOnDragEnd: setOnDragEnd,
       colorAllData: colorAllData,
-      calcScore: calcScore
+      calcScore: calcScore,
+      removeGood: removeGood,
+      highlightCells: highlightCells
    }
 
 });

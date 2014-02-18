@@ -1,4 +1,4 @@
-angular.module('controllers', [])
+angular.module('controllers', ['POOPSLIDE'])
 
 .controller("HeaderCtrl", function ($scope, $http, $rootScope, $modal, authService, $location) {
 
@@ -75,7 +75,7 @@ angular.module('controllers', [])
 
 })
 
-.controller("StartCtrl", function($scope) {
+.controller("StartCtrl", function($scope, POOPSLIDE) {
 })
 
 .controller("LoginModalCtrl", function ($scope, $rootScope, $http, $modalInstance) {

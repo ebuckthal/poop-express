@@ -32,47 +32,90 @@ angular.module('POOPEFFECTS', [])
 
    }
 
-   function drawRowColHighlight(sel, gameSize, numRows) {
+   function drawOrientNumbers(sel) {
 
-      var d = [];
+   }
 
-      for(var i = 0; i < numRows; i++) {
-         d.push(i);
+   function drawRowColHighlights(sel, indexArrayToDraw) {
+
+      if(indexArrayToDraw !== undefined) {
+         d3.select("#effects").datum({ indexArray: indexArrayToDraw });
       }
 
-      var domain = d3.scale.ordinal().rangeBands([0, gameSize], 0.1, 0.15).domain(d);
-      var cellSize = 0.9 * (domain(1) - domain(0));
-
-      for(var i = 0; i < numRows; i++) {
-
-         this
-            .insert('rect')
-            .attr('class', 'highlight')
-            .attr('height', gameSize+10)
-            .attr('width', 3)
-            .style('fill', '#E8573F')
-            .attr('transform', 'translate(' + (domain(i) + (0.5 * cellSize)) + ', 0)')
-            .style('opacity', 0)
-         ;
-
-         this
-            .insert('rect')
-            .attr('class', 'highlight')
-            .attr('height', 3)
-            .attr('width', gameSize+10)
-            .style('fill', '#E8573F')
-            .attr('transform', 'translate(0,' + (domain(i) + (0.5 * cellSize)) + ')')
-            .style('opacity', 0)
-         ;
+      if(d3.select("#effects").datum() === undefined) {
+         return;
       }
 
-      this
-         .selectAll('.highlight')
+
+      var indexArray = d3.select("#effects").datum().indexArray;
+
+      var datum = d3.select("#game").datum();
+
+      var offsetArray = [];
+
+      for(var i = 0; i < indexArray.length; i++) {
+         offsetArray.push(datum.drawDomain[indexArray[i]]);
+      }
+
+      var vert = this
+         .selectAll('.vert')
+         .data(offsetArray)
+      ;
+      
+      vert
+         .attr('transform', function(d) {
+               return 'translate(' + ((d) + (0.5 * datum.cellSize) - 5) + ',0)';
+            })
+      ;
+
+      vert
+         .enter()
+         .insert('rect')
+         .attr('class', 'vert rc-highlight')
+         .attr('height', datum.gameSize+10)
+         .attr('width', 10)
+         .style('fill', '#E8573F')
+         .style('opacity', 0)
+         .style('pointer-events', 'none')
+         .attr('transform', function(d) { 
+               return 'translate(' + ((d) + (0.5 * datum.cellSize) - 5) + ', 0)';
+            })
          .transition()
          .delay(function(d, i) { return i * 200 })
          .duration(200)
          .style('opacity', 0.8)
       ;
+
+      var hori = this
+         .selectAll('.hori')
+         .data(offsetArray)
+      ;
+
+      hori
+         .attr('transform', function(d) {
+               return 'translate(0,' + ((d) + (0.5 * datum.cellSize) - 5) + ')';
+            })
+      ;
+
+      hori
+         .enter()
+         .insert('rect')
+         .attr('class', 'hori rc-highlight')
+         .attr('height', 10)
+         .attr('width', datum.gameSize+10)
+         .style('fill', '#E8573F')
+         .style('opacity', 0)
+         .style('pointer-events', 'none')
+         .attr('transform', function(d) {
+               return 'translate(0,' + ((d) + (0.5 * datum.cellSize) - 5) + ')';
+            })
+         .transition()
+         .delay(function(d, i) { return i * 200 })
+         .duration(200)
+         .style('opacity', 0.8)
+
+      ;
+
    }
 
    function removeHighlights(sel) {
@@ -112,7 +155,8 @@ angular.module('POOPEFFECTS', [])
 
    return {
       highlightGroup: highlightGroup,
-      removeHighlights: removeHighlights
+      removeHighlights: removeHighlights,
+      drawRowColHighlights: drawRowColHighlights
    }
 
 });

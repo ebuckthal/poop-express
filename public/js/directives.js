@@ -5,6 +5,7 @@ return {
    link : function(scope, element, attrs) {
 
 
+
       POOPSLIDE.addSlide( //slide 0
          function() { 
             matrix = [[100,100,100,0],[100,100,0,0],[0,0,100,100],[100,100,0,100]];
@@ -17,6 +18,20 @@ return {
          }, 
          function() { 
             POOPSNOOP.setOnDragEnd();
+         }
+      );
+
+      POOPSLIDE.addSlide( //slide 1
+         function() { 
+            d3.select('#guide-text')
+               .call(POOPSLIDE.drawText, {text: 'Let\'s talk science. The diagonal splits the puzzle into two sections of sample comparison. For instance, sample 1 is compared to sample 2 at these four points.'});
+               
+            d3.select('#effects')
+               .call(POOPEFFECTS.drawRowColHighlights, [0,1]);
+
+         }, 
+         function() { 
+
          }
       );
 
@@ -75,7 +90,7 @@ return {
 
          }, 
          function() { 
-            d3.select('#effects').call(POOPSLIDE.removeHighlights);
+            d3.select('#effects').call(POOPEFFECTS.removeHighlights);
 
             POOPSNOOP.setOnDragEnd();
          }
@@ -85,7 +100,7 @@ return {
       POOPSLIDE.addInnerSlide( //slide 1
          function() { 
             d3.select('#guide-text')
-               .call(POOPSLIDE.drawText, {text: 'Excellent! You\'ve grouped two samples together! Because the order of rows and columns is consistent, all clusters must form perfect squares along the diagonal. Cluster the same rows in the highlighted area.'});
+               .call(POOPSLIDE.drawText, {text: 'Excellent! You\'ve grouped two samples together! Because the order of rows and columns is consistent, all clusters must form perfect squares along the diagonal.'});
 
             d3.select('#game').call(POOPSNOOP.calcScore);
             d3.select('#game')
@@ -111,10 +126,13 @@ return {
             });
          }, 
          function() { 
-            d3.select('#effects').call(POOPSNOOP.removeHighlights);
+            d3.select('#effects').call(POOPEFFECTS.removeHighlights);
 
             POOPSNOOP.setOnDragEnd();
 
+
+            d3.select('#game').call(POOPSNOOP.removeGood);
+            
             d3.select('#game')
                .transition()
                .duration(200)
@@ -122,44 +140,21 @@ return {
          }
       );
 
-      POOPSLIDE.addInnerSlide( //slide 1
+      POOPSLIDE.addSlide( //slide 1
          function() { 
             d3.select('#guide-text')
-               .call(POOPSLIDE.drawText, {text: 'Good job! The same two samples can be grouped in multiple places as long as they are along the diagonal.'});
-
-            d3.select('#game').call(POOPSNOOP.calcScore);
-            d3.select('#game')
-               .selectAll('.good')
-               .transition()
-               .duration(200)
-               .style('fill', '#23c897')
+               .call(POOPSLIDE.drawText, {text: 'Good job! The same samples can be grouped anywhere along the diagonal. These two solutions are equivalent. Click to continue.'});
 
          }, 
          function() { 
-            d3.select('#game')
-               .transition()
-               .duration(200)
-               .call(POOPSNOOP.colorAllData);
+
          }
       );
 
-      /*POOPSLIDE.addSlide( //slide 1
-         function() { 
-            d3.select('#guide-text')
-               .call(POOPSLIDE.drawText, {text: 'Let\'s try a larger grid'});
 
-            matrix = [[100,100,100,0,100],[100,100,0,0,100],[0,0,100,100,100],[100,100,0,100,100],[100,100,100,100,100]];
-            d3.select('#game').call(init, { gameSize: 500, orient: [0,1,2,3,4] });
-            //d3.select('#effects').call(drawRowColHighlight, 500, 3);
-         }, 
-         function() { 
-            //d3.select('#effects').call(removeHighlights);
-            //d3.select('#effects').call(removeHighlights);
-         }
-      );
-      */
+   //goto first slide
+   POOPSLIDE.gotoNextSlide();
 
-      POOPSLIDE.gotoNextSlide();
    }
 
 
