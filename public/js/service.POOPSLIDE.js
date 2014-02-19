@@ -137,21 +137,17 @@ angular.module('POOPSLIDE', [])
       t
          .html(function(d) { return d.text; })
          .style('opacity', 0)
-         .style('padding-left', 100)
          .transition()
          .duration(200)
          .style('opacity', 1)
-         .style('padding-left', 0)
       ;
 
       t 
          .exit()
          .style('opacity', 1)
-         .style('padding-left', 0)
          .transition()
          .duration(200)
          .style('opacity', 0)
-         .style('padding-left', 100)
          .remove();
 
 

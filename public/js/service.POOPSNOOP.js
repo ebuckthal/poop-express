@@ -48,6 +48,14 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
       this
          .datum(options) //{ gameSize: 400, orient: [0,1,2] })
 
+      this.call(updateData, matrix);
+
+   };
+
+   function updateData(sel, matrix) {
+
+      var datum = this.datum();
+
       var rows = this
          .selectAll('.row')
          .data(matrix)
@@ -68,12 +76,12 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
 
       cells
          .attr('class', 'cell')
-         .attr('width', options.cellSize)
-         .attr('height', options.cellSize)
+         .attr('width', datum.cellSize)
+         .attr('height', datum.cellSize)
          //.style('stroke-width', '2px')
          //.style('stroke', 'white')
-         .attr('rx', options.cellSize * 0.05)
-         .attr('ry', options.cellSize * 0.05)
+         .attr('rx', datum.cellSize * 0.05)
+         .attr('ry', datum.cellSize * 0.05)
          .attr('row', function(d, i, j) { return j; })
          .attr('col', function(d, i, j) { return i; })
          .on("mouseenter", highlightCells) 
@@ -85,7 +93,7 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
          .call(colorAllData)
          .call(drawDomainAll)
 
-   };
+   }
 
 
    function drawDomainAll() {
@@ -129,6 +137,11 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
                return d > 99.5 ? "#2DAEE1" : (d > 99 ? "#E0E089" : "#DDD");
             }
          })
+
+      this
+         .filter(function() { return this.classList.contains('good'); })
+         .style('fill', '#23c897')
+      ;
    };
 
    function dragStart(d, i, j) {
@@ -180,7 +193,10 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
                datum.drawDomain[ix] = i(t); //datum.domain(selectedIndex);
 
                d3.select("#game").call(drawDomainAll);
-               d3.select("#effects").call(POOPEFFECTS.drawRowColHighlights);
+               d3.select("#effects")
+                  .call(POOPEFFECTS.drawRowColHighlights)
+                  .call(POOPEFFECTS.drawCellHighlights)
+                  .call(POOPEFFECTS.drawRowColLabels);
 
             };
          })
@@ -221,6 +237,8 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
 
       d3.select("#effects")
          .call(POOPEFFECTS.drawRowColHighlights)
+         .call(POOPEFFECTS.drawCellHighlights)
+         .call(POOPEFFECTS.drawRowColLabels)
       ;
 
    };
@@ -240,7 +258,9 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
       datum.drawDomain[datum.selected] = datum.domain(selectedIndex);
 
       d3.select("#effects")
-         .call(POOPEFFECTS.drawRowColHighlights);
+         .call(POOPEFFECTS.drawRowColHighlights)
+         .call(POOPEFFECTS.drawRowColLabels)
+         .call(POOPEFFECTS.drawCellHighlights);
 
       d3.select("#game")
          .selectAll('.row')
@@ -335,7 +355,8 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
       colorAllData: colorAllData,
       calcScore: calcScore,
       removeGood: removeGood,
-      highlightCells: highlightCells
+      highlightCells: highlightCells,
+      updateData: updateData
    }
 
 });

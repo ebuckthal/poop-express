@@ -1,6 +1,7 @@
 angular.module('POOPEFFECTS', [])
 
 .service('POOPEFFECTS', function() {
+
    function highlightGroup(sel, gameSize, numRows, firstRow, lastRow) {
 
       var d = [];
@@ -23,7 +24,7 @@ angular.module('POOPEFFECTS', [])
          .style('fill-opacity', 0)
          .style('stroke-opacity', 0)
          .style('stroke-width', 4)
-         .style('stroke', '#23c897')
+         .style('stroke', '#E8573F')
          .style('pointer-events', 'none')
          .transition()
          .duration(200)
@@ -32,22 +33,92 @@ angular.module('POOPEFFECTS', [])
 
    }
 
-   function drawOrientNumbers(sel) {
+   function drawCellHighlights(sel, coords) {
 
-   }
-
-   function drawRowColHighlights(sel, indexArrayToDraw) {
-
-      if(indexArrayToDraw !== undefined) {
-         d3.select("#effects").datum({ indexArray: indexArrayToDraw });
+      if(coords !== undefined) {
+         d3.select("#effects").datum().indexArrayCoords = coords;
       }
 
-      if(d3.select("#effects").datum() === undefined) {
+      //console.log(d3.select("#effects").datum());
+
+      if(d3.select("#effects").datum() === undefined ||
+         d3.select("#effects").datum().indexArrayCoords === undefined) {
          return;
       }
 
+      var indexArray = d3.select("#effects").datum().indexArrayCoords;
 
-      var indexArray = d3.select("#effects").datum().indexArray;
+      var datum = d3.select("#game").datum();
+
+      var labels = this
+         .selectAll('.cell-label')
+         .data(indexArray)
+      ;
+      
+      labels
+         .attr('transform', 
+            function(d) {
+               return 'translate(' + (datum.drawDomain[d.x] + (0.5 * datum.cellSize)) + ',' + (datum.drawDomain[d.y] + (0.5*datum.cellSize)) + ')';
+            })
+      ;
+
+      labels
+         .enter()
+         .insert('circle')
+         .attr('r', 20)
+         .attr('class', 'cell-label')
+         .style('pointer-events', 'none')
+         .style('fill', '#E8573F')
+         .style('pointer-events', 'none')
+         .attr('transform', 
+            function(d) {
+               return 'translate(' + (datum.drawDomain[d.x] + (0.5 * datum.cellSize)) + ',' + (datum.drawDomain[d.y] + (0.5*datum.cellSize)) + ')';
+            })
+         .style('opacity', 0)
+         .transition()
+         .duration(200)
+         .style('opacity', 0.8)
+      ;
+
+      labels
+         .exit()
+         .remove();
+
+      return this;
+
+   }
+
+   function highlightDiagonal(sel) {
+
+      var gameSize = d3.select("#game").datum().gameSize;
+
+      this
+         .append('rect')
+         .attr('class', 'highlight')
+         .attr('width', 1)
+         .attr('height', Math.sqrt(2 * gameSize * gameSize))
+         .style('stroke-width', 5)
+         .style('stroke', '#E8573F')
+         .style('opacity', 0)
+         .attr('transform', 'translate(0,1)rotate(-45)')
+         .transition()
+         .style('opacity', 0.8)
+      ;
+
+   }
+
+   function drawRowColLabels(sel, indexArrayToDraw) {
+
+      if(indexArrayToDraw !== undefined) {
+         d3.select("#effects").datum().indexArrayNumbers = indexArrayToDraw;
+      }
+
+      if(d3.select("#effects").datum() === undefined ||
+         d3.select("#effects").datum().indexArrayNumbers === undefined) {
+         return;
+      }
+
+      var indexArray = d3.select("#effects").datum().indexArrayNumbers;
 
       var datum = d3.select("#game").datum();
 
@@ -58,7 +129,91 @@ angular.module('POOPEFFECTS', [])
       }
 
       var vert = this
-         .selectAll('.vert')
+         .selectAll('.vert.rc-label')
+         .data(offsetArray)
+      ;
+      
+      vert
+         .attr('transform', function(d) {
+               return 'translate(' + ((d) + (0.5 * datum.cellSize)) + ',15)';
+            })
+      ;
+
+      vert
+         .enter()
+         .insert('text')
+         .text(function(d, i) { return i; })
+         .attr('class', 'vert rc-label')
+         .style('pointer-events', 'none')
+         .attr('transform', function(d) { 
+               return 'translate(' + ((d) + (0.5 * datum.cellSize)) + ', 15)';
+            })
+         .style('opacity', 0)
+         .transition()
+         .duration(200)
+         .style('opacity', 1)
+      ;
+
+      vert
+         .exit()
+         .remove();
+
+      var hori = this
+         .selectAll('.hori.rc-label')
+         .data(offsetArray)
+      ;
+
+      hori
+         .attr('transform', function(d) {
+               return 'translate(5,' + ((d) + (0.5 * datum.cellSize)) + ')';
+            })
+      ;
+
+      hori
+         .enter()
+         .insert('text')
+         .text(function(d, i) { return i; })
+         .attr('class', 'hori rc-label ')
+         .style('pointer-events', 'none')
+         .attr('transform', function(d) {
+               return 'translate(5,' + ((d) + (0.5 * datum.cellSize)) + ')';
+            })
+         .style('opacity', 0)
+         .transition()
+         .duration(200)
+         .style('opacity', 1)
+      ;
+
+      hori
+         .exit()
+         .remove();
+
+   }
+
+   function drawRowColHighlights(sel, indexArrayToDraw) {
+
+      if(indexArrayToDraw !== undefined) {
+         d3.select("#effects").datum().indexArray = indexArrayToDraw;
+      }
+
+      if(d3.select("#effects").datum() === undefined ||
+         d3.select("#effects").datum().indexArray === undefined) {
+         return;
+      }
+
+
+      var indexArray = d3.select("#effects").datum().indexArray;
+
+      var datum = d3.select("#game").datum();
+
+      var offsetArray = [];
+      
+      for(var i = 0; i < indexArray.length; i++) {
+         offsetArray.push(datum.drawDomain[indexArray[i]]);
+      }
+
+      var vert = this
+         .selectAll('.vert.rc-highlight')
          .data(offsetArray)
       ;
       
@@ -86,8 +241,12 @@ angular.module('POOPEFFECTS', [])
          .style('opacity', 0.8)
       ;
 
+      vert
+         .exit()
+         .remove();
+
       var hori = this
-         .selectAll('.hori')
+         .selectAll('.hori.rc-highlight')
          .data(offsetArray)
       ;
 
@@ -115,6 +274,12 @@ angular.module('POOPEFFECTS', [])
          .style('opacity', 0.8)
 
       ;
+
+      hori
+         .exit()
+         .remove();
+
+      return this;
 
    }
 
@@ -156,7 +321,10 @@ angular.module('POOPEFFECTS', [])
    return {
       highlightGroup: highlightGroup,
       removeHighlights: removeHighlights,
-      drawRowColHighlights: drawRowColHighlights
+      drawRowColHighlights: drawRowColHighlights,
+      drawRowColLabels: drawRowColLabels,
+      highlightDiagonal: highlightDiagonal,
+      drawCellHighlights: drawCellHighlights 
    }
 
 });

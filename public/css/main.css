@@ -7,7 +7,6 @@
    src: url('MinionPro-Regular.otf');
 }
 
-
 * {
    margin: 0;
    padding: 0;
@@ -144,7 +143,21 @@ span.btn.disabled:active {
    float: right;
 }
 
-span.text-box {
+#guide-text {
+   height: 120px;
+   width: 600px;
+   margin: 0 auto;
+   display: block;
+}
+
+.help-text {
+   height: 100px;
+   width: 500px;
+   margin: 0 auto;
+   display: block;
+}
+
+.text-slide {
    font-family: 'Minion Pro', 'serif';
    font-size: 16pt;
    text-align: center;
@@ -152,11 +165,6 @@ span.text-box {
    padding: 10px 15px;
    background-color: #eee;
    border-radius: 5px;
-   display: inline-block;
-}
-
-span.text-box#t1 {
-   width: 570px;
 }
 
 span.term.yes {
@@ -169,7 +177,7 @@ span.term.no {
    background-color: #CCC;
 }
 
-span.term.rc {
+span.term.hi {
    background-color: #E8573F;
 }
 
