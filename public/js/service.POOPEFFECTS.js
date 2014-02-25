@@ -285,7 +285,7 @@ angular.module('POOPEFFECTS', [])
    }
 
    function removeHighlights(sel) {
-      this.selectAll('.highlight').data([]).exit().remove();
+      this.selectAll('.highlight').remove();
    }
 
    function drawWordHighlights(sel, gameSize, numRows, words) {

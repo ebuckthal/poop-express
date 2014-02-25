@@ -1,6 +1,6 @@
-angular.module('directives', ['POOPSLIDE', 'POOPSNOOP', 'POOPEFFECTS'])
+angular.module('directives', ['POOPSLIDE', 'POOPSNOOP', 'POOPEFFECTS', 'POOPNAV'])
 
-.directive('tutorialcontainer', ['POOPSLIDE', 'POOPSNOOP', 'POOPEFFECTS', function(POOPSLIDE, POOPSNOOP, POOPEFFECTS) {
+.directive('tutorialcontainer', function(POOPSLIDE, POOPSNOOP, POOPEFFECTS) {
 return {
    link : function(scope, element, attrs) {
 
@@ -11,7 +11,10 @@ return {
          function() { 
             matrix = [[100,100,100,0],[100,100,0,0],[0,0,100,100],[100,100,0,100]];
 
-            d3.select('#guide-text').call(POOPSLIDE.drawText, {text: 'This is <span class="term">POOPSNOOP</span>.<br><span class="term">Click and drag</span> a column or row along the <span class="term hi">diagonal</span>.'});
+            d3.select('#guide-text').call(POOPSLIDE.drawText, {text: 'This is <span class="term">POOPSNOOP</span>,<br>a tool to identify strains of <span class="term">E. coli</span>.'});
+
+            d3.select('#help-text')
+               .call(POOPSLIDE.drawText, {text: '<span class="term">Click and drag</span> a colored tile along <span class="term hi">diagonal</span>.'}, 500);
 
             d3.select('#game').call(POOPSNOOP.init, matrix, { gameSize: 500, orient: [0,1,2,3] });
 
@@ -23,7 +26,6 @@ return {
          }, 
          function() { 
             POOPSNOOP.setOnDragEnd();
-
          }
       );
 
@@ -32,12 +34,16 @@ return {
       POOPSLIDE.addSlide( //slide 1
          function() { 
             d3.select('#guide-text')
-               .call(POOPSLIDE.drawText, {text: 'The order of rows and columns is linked.<br>Rearranging the puzzle affects both rows and columns.<br>Try another <span class="term">click and drag</span>.' })
+               .call(POOPSLIDE.drawText, {text: 'There are rows and columns which intersect at tiles. The order of rows and columns is linked.<br>Rearranging the puzzle affects both rows and columns.' });
+
+            d3.select('#help-text')
+               .call(POOPSLIDE.drawText, {text: 'Try another <span class="term">Click and drag</span>.'}, 500);
 
             d3.select("#effects")
                .call(POOPEFFECTS.drawRowColLabels, [0,1,2,3]);
 
             POOPSNOOP.setOnDragEnd(function() { POOPSLIDE.gotoNextSlide(); });
+
 
          }, 
          function() { 
@@ -49,12 +55,17 @@ return {
 
       POOPSLIDE.addSlide( //slide 1
          function() { 
-            d3.select('#guide-text').call(POOPSLIDE.drawText, {text: 'Rows and columns represent <span class="term">samples</span> of <span class="term">E. coli</span>. Where the rows and columns meet is a color indicating a <span class="term yes">match</span> or not. <span class="term">Click and drag</span> again.' })
+            d3.select('#guide-text').call(POOPSLIDE.drawText, {text: 'Rows and columns represent <span class="term">samples</span> of <span class="term">E. coli</span>. Where the rows and columns meet is a color indicating a <span class="term yes">match</span> or not.' })
+
+            d3.select('#help-text')
+               .call(POOPSLIDE.drawText, {text: '<span class="term">Click and drag</span> again.'}, 500);
 
             POOPSNOOP.setOnDragEnd(function() { POOPSLIDE.gotoNextSlide(); });
          }, 
          function() { 
             POOPSNOOP.setOnDragEnd();
+            d3.select('#help-text')
+               .call(POOPSLIDE.drawText, {});
          }
       );
 
@@ -62,6 +73,7 @@ return {
          function() { 
             d3.select('#guide-text')
                .call(POOPSLIDE.drawText, {text: 'The goal of <span class="term">POOPSNOOP</span> is to cluster <span class="term yes">matching</span> samples of <span class="term">E. coli</span>. Rearrange this puzzle to make a cluster of <span class="term yes">matches</span>.'})
+
 
             d3.select("#effects").call(POOPEFFECTS.highlightGroup, 500, 4, 1, 2);
 
@@ -124,7 +136,9 @@ return {
       POOPSLIDE.addInnerSlide( //slide 1
          function() { 
             d3.select('#guide-text')
-               .call(POOPSLIDE.drawText, {text: 'Good job! Keep that in mind that clusters can be formed anywhere along the diagonal.'});
+               .call(POOPSLIDE.drawText, {text: 'Good job! Keep in mind that clusters can be formed anywhere along the diagonal.'});
+            d3.select('#help-text')
+               .call(POOPSLIDE.drawText, {text: 'Click any tile to continue.'}, 500);
 
             POOPSNOOP.setOnDragEnd(function() { POOPSLIDE.gotoNextSlide(); });
 
@@ -257,6 +271,67 @@ return {
          }, 
          function() { 
             POOPSNOOP.setOnDragEnd();
+
+            d3.select("#effects")
+               .call(POOPEFFECTS.drawCellHighlights, [])
+               .call(POOPEFFECTS.removeHighlights)
+               .call(POOPEFFECTS.drawRowColLabels, []);
+            d3.select('#help-text')
+               .call(POOPSLIDE.drawText,{});
+         }
+      );
+
+      POOPSLIDE.addSlide( //slide 1
+         function() { 
+            d3.select('#guide-text')
+               .call(POOPSLIDE.drawText, {text: 'Bigger puzzles may have multiple cluters. Solve this puzzle by making two large clusters! Remember, they must form squares along the diagonal.' });
+
+            matrix = [[100,100,100,0,0,0,99.5],
+                      [100,100,100,0,0,0,99.5],
+                      [100,100,100,0,0,0,99.5],
+                      [0,100,0,99.5,100,99.5,0],
+                      [0,0,0,99.5,100,100,100],
+                      [0,0,0,99.5,100,100,100],
+                      [99.5,0,0,100,100,100,100]];
+            d3.select('#game').call(POOPSNOOP.init, matrix, { gameSize: 500, orient: [1,6,3,2,5,4,0] });
+
+
+            POOPSNOOP.setOnDragEnd(function() { 
+               d3.select('#game')
+                  .call(POOPSNOOP.calcScore)
+                  .call(POOPSNOOP.colorAllData)
+                  .transition()
+                  .delay(500)
+                  .call(POOPSNOOP.removeGood)
+                  .call(POOPSNOOP.colorAllData);
+
+               //console.log(POOPSNOOP.currentScore);
+               d3.select('#help-text')
+                  .call(POOPSLIDE.drawText,{text: 'The green cells show the clusters of your current solution.'});
+               
+               if(POOPSNOOP.currentScore > 12) {
+                  POOPSLIDE.gotoNextSlide();
+               }
+
+            });
+         }, 
+         function() { 
+            POOPSNOOP.setOnDragEnd();
+
+            d3.select('#help-text')
+               .call(POOPSLIDE.drawText, {});
+
+         }
+      );
+
+      POOPSLIDE.addSlide( //slide 1
+         function() { 
+
+            d3.select('#guide-text')
+               .call(POOPSLIDE.drawText, {text: 'Now you\'re ready for action! Choose from the list of puzzles and cluster those E. coli!'});
+
+         }, 
+         function() { 
          }
       );
       
@@ -265,4 +340,4 @@ return {
    }
 
 }
-}]);
+});

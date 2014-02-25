@@ -76,6 +76,7 @@ angular.module('controllers', ['POOPSLIDE'])
 })
 
 .controller("StartCtrl", function($scope, POOPSLIDE) {
+   $scope.slide = POOPSLIDE;
 })
 
 .controller("LoginModalCtrl", function ($scope, $rootScope, $http, $modalInstance) {

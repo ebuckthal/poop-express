@@ -110,11 +110,17 @@ angular.module('POOPSLIDE', [])
    }
 
 
-   function drawText(selection, text) {
+   function drawText(selection, text, delay) {
+
+      delay = (delay === undefined ? 0 : delay);
+
+      if(text.text !== undefined){
+         this.style('opacity', 1);
+      }
 
       //console.log(text);
       var t = this.selectAll('.text-slide')
-         .data([text])
+         .data([text], function(d) { return d.text; })
       ;
 
       /*t
@@ -131,24 +137,25 @@ angular.module('POOPSLIDE', [])
       t.enter()
          .append('div')
          .attr('class', 'text-slide')
+         .style('opacity', 0)
+         .transition()
+         .delay(delay)
+         .duration(200)
+         .style('opacity', 1)
       ;
 
       //update and enter
       t
          .html(function(d) { return d.text; })
-         .style('opacity', 0)
-         .transition()
-         .duration(200)
-         .style('opacity', 1)
       ;
 
       t 
          .exit()
-         .style('opacity', 1)
-         .transition()
-         .duration(200)
-         .style('opacity', 0)
          .remove();
+
+      if(text.text == undefined){
+         this.style('opacity', 0);
+      }
 
 
       return t;

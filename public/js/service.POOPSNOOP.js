@@ -26,9 +26,15 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
       return true;
    }
 
+   this.currentScore = 0;
+   var POOPSNOOP = this;
+
    var onDragEnd;
 
-   function init(selection, matrix, options) {
+   this.init = function(selection, matrix, options) {
+
+      d3.select('svg').style('width', options.gameSize + 'px').style('height', options.gameSize + 'px');
+      console.log(d3.select('svg'));
 
       var d = [];
 
@@ -42,7 +48,7 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
       options.drawDomain = [];
 
       for(var i = 0; i < d.length; i++) {
-         options.drawDomain.push(options.domain(i));
+         options.drawDomain.push(options.domain(options.orient.indexOf(i)));
       };
 
       this
@@ -52,7 +58,7 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
 
    };
 
-   function updateData(sel, matrix) {
+   this.updateData = function(sel, matrix) {
 
       var datum = this.datum();
 
@@ -94,6 +100,7 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
          .call(drawDomainAll)
 
    }
+   updateData = this.updateData;
 
 
    function drawDomainAll() {
@@ -110,20 +117,26 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
 
    }
 
-   function removeGood(sel) {
+   this.removeGood = function(sel) {
       
-      this
-         .selectAll('.good')
+      d3.select('#game')
+         .selectAll('.row')
+         .selectAll('.cell')
          .classed('good', false);
+      
+      return this
    }
 
-   function colorAllData(sel) {
+   this.colorAllData = function(sel) {
 
       this
          .selectAll('.row')
          .selectAll('.cell')
          .call(colorAll, false);
+
+      return this;
    };
+   colorAllData = this.colorAllData;
 
    function colorAll(sel, highlight) {
 
@@ -185,6 +198,7 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
          .selectAll('.row')
          .select(function(d, i) { return (i == datum.selected ? null : this); })
          .transition()
+         .duration(100)
          .tween('draw', function(d, ix) {
             var i = d3.interpolate(datum.drawDomain[ix], datum.domain(datum.orient.indexOf(ix)));
 
@@ -275,20 +289,23 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
 
    };
 
-   function calcScore() {
+   this.calcScore = function() {
 
       var datum = this.datum();
 
       var cells = this
          .selectAll('.row')
-         .selectAll('.cell');
+         .selectAll('.cell')
+         .classed('good',false);
+
+      POOPSNOOP.currentScore = 0;
 
       
       for(var startIndex = 0; startIndex < datum.orient.length; startIndex++) {
 
          var squareSize;
 
-         for(squareSize = 2; squareSize <= datum.orient.length-startIndex; squareSize++) {
+         for(squareSize = 1; squareSize <= datum.orient.length-startIndex; squareSize++) {
 
             var isACluster = true;
 
@@ -313,11 +330,14 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
          }
 
          //console.log('found: square of size ' + (squareSize-1) + ' at ' + startIndex);
+         POOPSNOOP.currentScore += (squareSize-1);
+         console.log(POOPSNOOP.currentScore);
+
       }
 
    }
 
-   function highlightCells(d, i, j) {
+   this.highlightCells = function(d, i, j) {
 
       var index = j;
 
@@ -330,6 +350,7 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
          .call(colorAll, true)
          .style('cursor', 'nwse-resize');
    }  
+   highlightCells = this.highlightCells;
 
    function unhighlightCells(d, i, j) {
 
@@ -344,19 +365,13 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
          .call(colorAll, false)
    };
 
-   function setOnDragEnd(fn) {
+   this.setOnDragEnd = function(fn) {
       onDragEnd = fn;
    };
 
 
-   return {
-      init: init,
-      setOnDragEnd: setOnDragEnd,
-      colorAllData: colorAllData,
-      calcScore: calcScore,
-      removeGood: removeGood,
-      highlightCells: highlightCells,
-      updateData: updateData
+   /*return {
    }
+   */
 
 });

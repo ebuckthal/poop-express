@@ -1,13 +1,16 @@
-<!--div class="slides slide-{{ $index }}" style="height: {{ window.innerHeight - ($index == 0 ? 51 : 0 )}}px;" ng-repeat="s in slides" ng-click="scrollToNext($index)">
-   <p>{{ s.text }}</p>
-</div-->
-
 <div id="guide-text"></div>
 
 <svg tutorialcontainer style="width: 500px; height: 500px; margin: 0 auto; display: block;">
+   <g id="nav"></g>
    <g id="board"></g>
    <g id="game"></g>
    <g id="effects"></g>
 </svg>
 
-<div id="help-text" style="width: 500px; height: 100px; margin: 0 auto; display: block;"></div>
+
+<div style="width: 700px; height: 100px; margin: 50px auto; display: block;">
+   <div id="left">
+      <span class="btn" ng-click="slide.gotoPrevSlide()" style="float: right;">PREVIOUS</span>
+   </div>
+   <div id="help-text"></div>
+</div>
