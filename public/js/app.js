@@ -1,6 +1,6 @@
-angular.module('poop-app', ['ngRoute', 'ngAnimate', 'controllers', 'directives', 'POOPSLIDE', 'POOPSNOOP', 'POOPEFFECTS', 'http-auth-interceptor'])
+angular.module('poop-app', ['ngRoute', 'controllers', 'directives', 'POOPSLIDE', 'POOPSNOOP', 'POOPEFFECTS'])
 
-.config(function ($routeProvider, $locationProvider) {
+.config(function ($routeProvider) {
 
    $routeProvider.otherwise({ redirectTo: "/start" });
 
@@ -21,6 +21,11 @@ angular.module('poop-app', ['ngRoute', 'ngAnimate', 'controllers', 'directives',
    $routeProvider.when("/start", {
       templateUrl: 'partials/start.html',
       controller: 'StartCtrl'
+   });
+
+   $routeProvider.when("/juicy", {
+      templateUrl: 'partials/juicy.html',
+      controller: 'JuicyCtrl'
    });
 
    $routeProvider.when('/puzzle/:id', {

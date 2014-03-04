@@ -34,7 +34,6 @@ angular.module('POOPSNOOP', ['POOPSLIDE', 'POOPEFFECTS'])
    this.init = function(selection, matrix, options) {
 
       d3.select('svg').style('width', options.gameSize + 'px').style('height', options.gameSize + 'px');
-      console.log(d3.select('svg'));
 
       var d = [];
 

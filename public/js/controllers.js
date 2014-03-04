@@ -1,8 +1,6 @@
 angular.module('controllers', ['POOPSLIDE'])
 
-.controller("HeaderCtrl", function ($scope, $http, $rootScope, $modal, authService, $location) {
-
-   $scope.$location = $location;
+.controller("HeaderCtrl", function ($scope, $http, $rootScope) {
 
    $scope.logout = function() {
       $http.get('/user/logout')
@@ -79,58 +77,11 @@ angular.module('controllers', ['POOPSLIDE'])
    $scope.slide = POOPSLIDE;
 })
 
-.controller("LoginModalCtrl", function ($scope, $rootScope, $http, $modalInstance) {
-
-   $scope.creds = {};
-
-   $scope.login = function() {
-
-      $http.post('/user/login', $scope.creds)
-         .success(function (data) {
-            console.log('login successful');
-
-            $rootScope.user.registered = false;
-
-            $modalInstance.close($scope.creds);
-         })
-         .error(function (data) {
-            alert('login fail');
-         });
-   };
-
-   $scope.register = function() {
-      
-      console.log('register');
-      console.log($scope.creds);
-
-      $http.post('/user/register', $scope.creds)
-         .success(function (data) {
-            console.log('registration successful');
-
-            $rootScope.user.registered = true;
-
-            $modalInstance.close($scope.creds);
-         })
-         .error(function (data) {
-            console.log('registration failed');
-         });
-   };
-
-   $scope.cancel = function () {
-      console.log('login cancelled');
-      $modalInstance.dismiss('cancel');
-   };
-   
-
-})
-
 .controller("LeaderboardListCtrl", function ($scope) {
 })
 
 .controller("PuzzleListCtrl", function ($scope, $http, puzzleList) {
 
-   //initialize list of visible puzzles
-   //console.log(puzzleList);
    $scope.puzzleList = puzzleList;
 })
 
