@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" ng-app='poop-app'>
+<head>
+   <title>POOPSNOOP</title>
+   <link rel="stylesheet" type="text/css" href="/css/main.css"></link>
+   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css"></link>
+
+   <script src="/bower_components/angular/angular.js"></script>
+   <script src="/bower_components/angular-route/angular-route.js"></script>
+   <script src="/bower_components/d3/d3.js"></script>
+
+   <script src="/js/app.js"></script> 
+   <script src="/js/controllers.js"></script> 
+   <script src="/js/directives.js"></script> 
+   <script src="/js/service.POOPSNOOP.js"></script> 
+   <script src="/js/service.POOPSLIDE.js"></script> 
+   <script src="/js/service.POOPEFFECTS.js"></script> 
+   <script src="/js/service.POOPNAV.js"></script> 
+</head>
+
+<body>
+   <div id="header">
+      <a href="/#/"><span class="home">poop</span></a>
+      <a href="/#/puzzles"><span class="home">puzzles</span></a>
+      <span class="btn small right">login</span>
+   </div>
+
+   <div ng-view id="content"></div>
+
+</body>
+</html>
